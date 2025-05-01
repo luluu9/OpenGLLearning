@@ -14,6 +14,20 @@ An interactive educational desktop application for Windows that allows users to 
 - **Scene Saving/Loading**: Save and load scene configurations to/from JSON files
 - **Camera Controls**: Navigate the 3D scene using keyboard and mouse
 
+## Development Progress
+
+| Feature                   | Status      | Notes                                                      |
+|---------------------------|-------------|-----------------------------------------------------------|
+| 3D Scene Rendering        | ✅ Complete | Basic rendering pipeline working                           |
+| Camera Navigation         | ✅ Complete | WASD + mouse controls working                              |
+| Basic 3D Shapes           | ⏳ Partial  | Cube, Sphere implemented; others pending                   |
+| Light Effects             | ✅ Complete | Basic lighting model implemented                           |
+| UI Panels & Controls      | ✅ Complete | Fixed by using official ImGui implementation files         |
+| Object Transformations    | ⏳ Pending  | UI controls exist but need testing                         |
+| Material Editing          | ⏳ Pending  | UI controls exist but need testing                         |
+| Shader Editor             | ⏳ Pending  | Basic infrastructure exists                                |
+| Scene Save/Load           | ⏳ Pending  | UI elements exist but functionality untested               |
+
 ## Prerequisites
 
 - Windows 10/11
@@ -109,6 +123,21 @@ The application is designed to be easily extensible:
   - **shaders/**: GLSL shader files
   - **scenes/**: Saved scene configurations
   - **models/**: 3D model files
+
+## Troubleshooting
+
+### ImGui UI Not Displaying
+If the ImGui UI elements aren't visible despite successful initialization:
+1. Ensure you're using the official ImGui implementation files from the [ImGui repository](https://github.com/ocornut/imgui)
+2. Check that both backends are properly initialized (ImGui_ImplGlfw_InitForOpenGL and ImGui_ImplOpenGL3_Init)
+3. Verify that the OpenGL state is properly managed between your 3D rendering and ImGui rendering
+4. Delete imgui.ini if it exists to allow ImGui to create a fresh configuration
+
+### OpenGL Errors
+If you encounter OpenGL-related errors:
+1. Enable debug output using glEnable(GL_DEBUG_OUTPUT)
+2. Check for OpenGL version compatibility
+3. Ensure all shader compilation and linking is successful
 
 ## License
 

@@ -119,4 +119,44 @@ void Renderer::EndFrame()
 {
     // Reset to default rendering state
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    
+    // Make sure depth test is enabled - important for 3D rendering
+    glEnable(GL_DEPTH_TEST);
+}
+
+// Add a method to prepare for UI rendering
+void Renderer::PrepareForUIRendering()
+{
+    // Disable depth testing for UI
+    glDisable(GL_DEPTH_TEST);
+    
+    // Enable blending for UI elements
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    // Disable face culling for UI
+    glDisable(GL_CULL_FACE);
+}
+
+// Add a method to restore OpenGL state after UI rendering
+void Renderer::RestoreAfterUIRendering()
+{
+    // Restore depth test state
+    if (m_DepthTestEnabled)
+        glEnable(GL_DEPTH_TEST);
+    else
+        glDisable(GL_DEPTH_TEST);
+    
+    // Restore polygon mode
+    switch (m_RenderMode)
+    {
+    case RenderMode::Wireframe:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        break;
+    case RenderMode::Solid:
+    case RenderMode::Textured:
+    default:
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        break;
+    }
 }

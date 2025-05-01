@@ -28,21 +28,29 @@ bool UI::Initialize(GLFWwindow* window)
         
     m_Window = window;
     
+    std::cout << "Initializing ImGui..." << std::endl;
+        
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    // Remove docking flag as it might not be available in this version
-    //io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+    
+    // Explicitly enable UI visibility to ensure it appears
+    m_ShowDemoWindow = true; // Enable demo window temporarily for testing
+    m_ShowObjectProperties = true;
+    m_ShowSceneSettings = true;
+    m_ShowPerformanceOverlay = true;
     
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
-    
+        
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
+    
+    std::cout << "ImGui initialization complete!" << std::endl;
     
     return true;
 }
@@ -80,7 +88,7 @@ void UI::Update()
         m_FrameTimeAccumulator = 0.0f;
         m_FrameCount = 0;
     }
-    
+
     // Render ImGui components
     RenderMainMenuBar();
     

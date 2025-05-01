@@ -139,7 +139,16 @@ void Application::Render()
         m_Renderer->Render(m_Scene.get(), m_Camera.get());
         
         if (m_UI)
+        {
+            // Prepare OpenGL state for UI rendering
+            m_Renderer->PrepareForUIRendering();
+            
+            // Render UI
             m_UI->Render();
+            
+            // Restore OpenGL state for next frame
+            m_Renderer->RestoreAfterUIRendering();
+        }
             
         m_Renderer->EndFrame();
     }

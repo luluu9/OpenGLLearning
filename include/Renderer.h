@@ -30,6 +30,10 @@ public:
     void Render(Scene* scene, Camera* camera);
     void EndFrame();
     
+    // New methods for UI rendering
+    void PrepareForUIRendering();
+    void RestoreAfterUIRendering();
+    
     void SetRenderMode(RenderMode mode) { m_RenderMode = mode; }
     RenderMode GetRenderMode() const { return m_RenderMode; }
     

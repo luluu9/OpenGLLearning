@@ -1,0 +1,562 @@
+#include "UI.h"
+#include "Application.h"
+#include "Renderer.h"
+#include "Scene.h"
+#include "SceneObject.h"
+#include "Shader.h"
+#include "Primitives.h"
+
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+#include <iostream>
+#include <algorithm>
+#include <fstream>
+#include <sstream>
+
+UI::UI() = default;
+
+UI::~UI()
+{
+    Shutdown();
+}
+
+bool UI::Initialize(GLFWwindow* window)
+{
+    if (!window)
+        return false;
+        
+    m_Window = window;
+    
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    // Remove docking flag as it might not be available in this version
+    //io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+    
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330 core");
+    
+    return true;
+}
+
+void UI::Shutdown()
+{
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+}
+
+void UI::Update()
+{
+    // Start the Dear ImGui frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+    
+    // Calculate frame time
+    float currentTime = static_cast<float>(glfwGetTime());
+    float deltaTime = currentTime - m_LastFrameTime;
+    m_LastFrameTime = currentTime;
+    
+    // Store frame time for performance monitoring
+    m_FrameTimes[m_FrameTimeIndex] = deltaTime;
+    m_FrameTimeIndex = (m_FrameTimeIndex + 1) % IM_ARRAYSIZE(m_FrameTimes);
+    
+    // Calculate average frame time
+    m_FrameTimeAccumulator += deltaTime;
+    m_FrameCount++;
+    
+    if (m_FrameTimeAccumulator >= 0.5f) // Update average every half second
+    {
+        m_AverageFrameTime = m_FrameTimeAccumulator / m_FrameCount;
+        m_FrameTimeAccumulator = 0.0f;
+        m_FrameCount = 0;
+    }
+    
+    // Render ImGui components
+    RenderMainMenuBar();
+    
+    if (m_ShowShaderEditor)
+        RenderShaderEditor();
+        
+    if (m_ShowObjectProperties)
+        RenderObjectProperties();
+        
+    if (m_ShowSceneSettings)
+        RenderSceneSettings();
+        
+    if (m_ShowPerformanceOverlay)
+        RenderPerformanceOverlay();
+        
+    if (m_ShowDemoWindow)
+        ImGui::ShowDemoWindow(&m_ShowDemoWindow);
+}
+
+void UI::Render()
+{
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void UI::RenderMainMenuBar()
+{
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::MenuItem("New Scene", "Ctrl+N"))
+            {
+                // TODO: Implement New Scene functionality
+            }
+            
+            if (ImGui::MenuItem("Open Scene", "Ctrl+O"))
+            {
+                // TODO: Show file dialog to open scene
+                if (m_OnSceneLoad)
+                    m_OnSceneLoad("resources/scenes/default.json");
+            }
+            
+            if (ImGui::MenuItem("Save Scene", "Ctrl+S"))
+            {
+                // TODO: Show file dialog to save scene
+                if (m_OnSceneSave)
+                    m_OnSceneSave("resources/scenes/default.json");
+            }
+            
+            ImGui::Separator();
+            
+            if (ImGui::MenuItem("Exit", "Alt+F4"))
+            {
+                glfwSetWindowShouldClose(m_Window, GLFW_TRUE);
+            }
+            
+            ImGui::EndMenu();
+        }
+        
+        if (ImGui::BeginMenu("Edit"))
+        {
+            if (ImGui::MenuItem("Shader Editor", nullptr, m_ShowShaderEditor))
+                m_ShowShaderEditor = !m_ShowShaderEditor;
+                
+            ImGui::EndMenu();
+        }
+        
+        if (ImGui::BeginMenu("View"))
+        {
+            if (ImGui::MenuItem("Object Properties", nullptr, m_ShowObjectProperties))
+                m_ShowObjectProperties = !m_ShowObjectProperties;
+                
+            if (ImGui::MenuItem("Scene Settings", nullptr, m_ShowSceneSettings))
+                m_ShowSceneSettings = !m_ShowSceneSettings;
+                
+            if (ImGui::MenuItem("Performance Overlay", nullptr, m_ShowPerformanceOverlay))
+                m_ShowPerformanceOverlay = !m_ShowPerformanceOverlay;
+                
+            ImGui::Separator();
+            
+            if (ImGui::MenuItem("ImGui Demo", nullptr, m_ShowDemoWindow))
+                m_ShowDemoWindow = !m_ShowDemoWindow;
+                
+            ImGui::EndMenu();
+        }
+        
+        if (ImGui::BeginMenu("Objects"))
+        {
+            if (ImGui::MenuItem("Add Cube"))
+            {
+                if (m_OnAddObject)
+                    m_OnAddObject("Cube");
+            }
+            
+            if (ImGui::MenuItem("Add Sphere"))
+            {
+                if (m_OnAddObject)
+                    m_OnAddObject("Sphere");
+            }
+            
+            if (ImGui::MenuItem("Add Plane"))
+            {
+                if (m_OnAddObject)
+                    m_OnAddObject("Plane");
+            }
+            
+            if (ImGui::MenuItem("Add Cylinder"))
+            {
+                if (m_OnAddObject)
+                    m_OnAddObject("Cylinder");
+            }
+            
+            if (ImGui::MenuItem("Add Cone"))
+            {
+                if (m_OnAddObject)
+                    m_OnAddObject("Cone");
+            }
+            
+            ImGui::EndMenu();
+        }
+        
+        if (ImGui::BeginMenu("Rendering"))
+        {
+            Application* app = Application::GetInstance();
+            if (app && app->GetRenderer())
+            {
+                Renderer* renderer = app->GetRenderer();
+                
+                if (ImGui::BeginMenu("Render Mode"))
+                {
+                    bool isSolid = renderer->GetRenderMode() == RenderMode::Solid;
+                    if (ImGui::MenuItem("Solid", nullptr, isSolid))
+                        renderer->SetRenderMode(RenderMode::Solid);
+                        
+                    bool isWireframe = renderer->GetRenderMode() == RenderMode::Wireframe;
+                    if (ImGui::MenuItem("Wireframe", nullptr, isWireframe))
+                        renderer->SetRenderMode(RenderMode::Wireframe);
+                        
+                    bool isTextured = renderer->GetRenderMode() == RenderMode::Textured;
+                    if (ImGui::MenuItem("Textured", nullptr, isTextured))
+                        renderer->SetRenderMode(RenderMode::Textured);
+                        
+                    ImGui::EndMenu();
+                }
+                
+                if (ImGui::BeginMenu("Lighting Model"))
+                {
+                    bool isFlat = renderer->GetLightingModel() == LightingModel::Flat;
+                    if (ImGui::MenuItem("Flat", nullptr, isFlat))
+                        renderer->SetLightingModel(LightingModel::Flat);
+                        
+                    bool isPhong = renderer->GetLightingModel() == LightingModel::Phong;
+                    if (ImGui::MenuItem("Phong", nullptr, isPhong))
+                        renderer->SetLightingModel(LightingModel::Phong);
+                        
+                    ImGui::EndMenu();
+                }
+                
+                ImGui::Separator();
+                
+                bool depthTestEnabled = renderer->IsDepthTestEnabled();
+                if (ImGui::MenuItem("Depth Test", nullptr, depthTestEnabled))
+                    renderer->EnableDepthTest(!depthTestEnabled);
+            }
+            
+            ImGui::EndMenu();
+        }
+        
+        ImGui::EndMainMenuBar();
+    }
+}
+
+void UI::RenderShaderEditor()
+{
+    ImGui::Begin("Shader Editor", &m_ShowShaderEditor);
+    
+    static bool firstTime = true;
+    if (firstTime)
+    {
+        // Load default shaders
+        std::ifstream vertFile("resources/shaders/default.vert");
+        if (vertFile.is_open())
+        {
+            std::stringstream buffer;
+            buffer << vertFile.rdbuf();
+            m_VertexShaderSource = buffer.str();
+            vertFile.close();
+        }
+        
+        std::ifstream fragFile("resources/shaders/default.frag");
+        if (fragFile.is_open())
+        {
+            std::stringstream buffer;
+            buffer << fragFile.rdbuf();
+            m_FragmentShaderSource = buffer.str();
+            fragFile.close();
+        }
+        
+        firstTime = false;
+    }
+    
+    // Set up some reasonable sizes for the editor
+    ImVec2 size = ImGui::GetContentRegionAvail();
+    size.y = size.y / 2.0f - 35.0f;
+    
+    ImGui::Text("Vertex Shader");
+    // Fix InputTextMultiline to use properly resizable buffers
+    static char vertBuffer[8192] = "";
+    if (m_VertexShaderSource.size() < sizeof(vertBuffer)) {
+        strcpy(vertBuffer, m_VertexShaderSource.c_str());
+    }
+    if (ImGui::InputTextMultiline("##VertexShader", vertBuffer, sizeof(vertBuffer), size, ImGuiInputTextFlags_AllowTabInput))
+    {
+        m_VertexShaderSource = vertBuffer;
+        m_ShaderModified = true;
+    }
+    
+    ImGui::Text("Fragment Shader");
+    // Fix InputTextMultiline to use properly resizable buffers
+    static char fragBuffer[8192] = "";
+    if (m_FragmentShaderSource.size() < sizeof(fragBuffer)) {
+        strcpy(fragBuffer, m_FragmentShaderSource.c_str());
+    }
+    if (ImGui::InputTextMultiline("##FragmentShader", fragBuffer, sizeof(fragBuffer), size, ImGuiInputTextFlags_AllowTabInput))
+    {
+        m_FragmentShaderSource = fragBuffer;
+        m_ShaderModified = true;
+    }
+    
+    if (ImGui::Button("Compile Shader") || ImGui::IsKeyPressed(ImGuiKey_F5))
+    {
+        if (m_OnCompileShader && m_SelectedObject)
+        {
+            Shader* shader = m_SelectedObject->GetShader();
+            if (shader)
+            {
+                bool success = m_OnCompileShader(shader, m_VertexShaderSource, m_FragmentShaderSource);
+                if (success)
+                {
+                    m_ShaderModified = false;
+                    ImGui::OpenPopup("Shader Compilation");
+                }
+            }
+        }
+    }
+    
+    // Compilation result popup
+    if (ImGui::BeginPopupModal("Shader Compilation", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::Text("Shader compiled successfully!");
+        ImGui::Separator();
+        
+        if (ImGui::Button("OK", ImVec2(120, 0)))
+            ImGui::CloseCurrentPopup();
+            
+        ImGui::EndPopup();
+    }
+    
+    ImGui::End();
+}
+
+void UI::RenderObjectProperties()
+{
+    ImGui::Begin("Object Properties", &m_ShowObjectProperties);
+    
+    Application* app = Application::GetInstance();
+    if (!app || !app->GetScene())
+    {
+        ImGui::Text("No scene available");
+        ImGui::End();
+        return;
+    }
+    
+    Scene* scene = app->GetScene();
+    
+    // Object selection
+    if (ImGui::BeginCombo("Select Object", m_SelectedObject ? m_SelectedObject->GetName().c_str() : "None"))
+    {
+        for (const auto& object : scene->GetObjects())
+        {
+            bool isSelected = (m_SelectedObject == object.get());
+            if (ImGui::Selectable(object->GetName().c_str(), isSelected))
+            {
+                m_SelectedObject = object.get();
+            }
+            
+            if (isSelected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+    
+    // Object properties editing
+    if (m_SelectedObject)
+    {
+        ImGui::Separator();
+        
+        // Edit name
+        std::string objectName = m_SelectedObject->GetName();
+        static char nameBuffer[256] = "";
+        if (objectName.size() < sizeof(nameBuffer)) {
+            strcpy(nameBuffer, objectName.c_str());
+        }
+        if (ImGui::InputText("Name", nameBuffer, sizeof(nameBuffer)))
+        {
+            m_SelectedObject->SetName(nameBuffer);
+        }
+        
+        // Visibility
+        bool visible = m_SelectedObject->IsVisible();
+        if (ImGui::Checkbox("Visible", &visible))
+        {
+            m_SelectedObject->SetVisible(visible);
+        }
+        
+        ImGui::Separator();
+        
+        // Transform properties
+        if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            // Position
+            glm::vec3 position = m_SelectedObject->GetPosition();
+            if (ImGui::DragFloat3("Position", &position[0], 0.01f))
+            {
+                m_SelectedObject->SetPosition(position);
+            }
+            
+            // Rotation
+            glm::vec3 rotation = m_SelectedObject->GetRotation();
+            if (ImGui::DragFloat3("Rotation", &rotation[0], 0.1f))
+            {
+                m_SelectedObject->SetRotation(rotation);
+            }
+            
+            // Scale
+            glm::vec3 scale = m_SelectedObject->GetScale();
+            if (ImGui::DragFloat3("Scale", &scale[0], 0.01f, 0.01f, 100.0f))
+            {
+                m_SelectedObject->SetScale(scale);
+            }
+        }
+        
+        // Material properties
+        if (ImGui::CollapsingHeader("Material", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            Material& material = m_SelectedObject->GetMaterial();
+            
+            ImGui::ColorEdit3("Ambient", &material.ambient[0]);
+            ImGui::ColorEdit3("Diffuse", &material.diffuse[0]);
+            ImGui::ColorEdit3("Specular", &material.specular[0]);
+            ImGui::SliderFloat("Shininess", &material.shininess, 1.0f, 256.0f);
+        }
+    }
+    else
+    {
+        ImGui::Text("No object selected");
+    }
+    
+    ImGui::End();
+}
+
+void UI::RenderSceneSettings()
+{
+    ImGui::Begin("Scene Settings", &m_ShowSceneSettings);
+    
+    Application* app = Application::GetInstance();
+    if (!app || !app->GetScene() || !app->GetRenderer())
+    {
+        ImGui::Text("No scene or renderer available");
+        ImGui::End();
+        return;
+    }
+    
+    Scene* scene = app->GetScene();
+    Renderer* renderer = app->GetRenderer();
+    
+    // Clear color
+    glm::vec4 clearColor = renderer->GetClearColor();
+    if (ImGui::ColorEdit3("Background Color", &clearColor[0]))
+    {
+        renderer->SetClearColor(clearColor);
+    }
+    
+    ImGui::Separator();
+    
+    // Light settings
+    if (ImGui::CollapsingHeader("Lighting", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        const std::vector<Light>& lights = scene->GetLights();
+        
+        for (int i = 0; i < lights.size(); i++)
+        {
+            ImGui::PushID(i);
+            
+            std::string lightLabel = "Light " + std::to_string(i + 1);
+            if (ImGui::TreeNode(lightLabel.c_str()))
+            {
+                Light* light = scene->GetLight(i);
+                if (light)
+                {
+                    ImGui::DragFloat3("Position", &light->position[0], 0.1f);
+                    ImGui::ColorEdit3("Color", &light->color[0]);
+                    ImGui::SliderFloat("Intensity", &light->intensity, 0.0f, 10.0f);
+                }
+                
+                ImGui::TreePop();
+            }
+            
+            ImGui::PopID();
+        }
+        
+        if (ImGui::Button("Add Light"))
+        {
+            Light newLight;
+            scene->AddLight(newLight);
+        }
+    }
+    
+    ImGui::End();
+}
+
+void UI::RenderPerformanceOverlay()
+{
+    const float DISTANCE = 10.0f;
+    static int corner = 0;
+    ImGuiIO& io = ImGui::GetIO();
+    
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration |
+                                  ImGuiWindowFlags_AlwaysAutoResize |
+                                  ImGuiWindowFlags_NoSavedSettings |
+                                  ImGuiWindowFlags_NoFocusOnAppearing |
+                                  ImGuiWindowFlags_NoNav;
+    
+    if (corner != -1)
+    {
+        const ImGuiViewport* viewport = ImGui::GetMainViewport();
+        ImVec2 work_pos = viewport->WorkPos;
+        ImVec2 work_size = viewport->WorkSize;
+        ImVec2 window_pos, window_pos_pivot;
+        
+        window_pos.x = (corner & 1) ? (work_pos.x + work_size.x - DISTANCE) : (work_pos.x + DISTANCE);
+        window_pos.y = (corner & 2) ? (work_pos.y + work_size.y - DISTANCE) : (work_pos.y + DISTANCE);
+        window_pos_pivot.x = (corner & 1) ? 1.0f : 0.0f;
+        window_pos_pivot.y = (corner & 2) ? 1.0f : 0.0f;
+        
+        ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+        window_flags |= ImGuiWindowFlags_NoMove;
+    }
+    
+    ImGui::SetNextWindowBgAlpha(0.35f);
+    if (ImGui::Begin("Performance Overlay", &m_ShowPerformanceOverlay, window_flags))
+    {
+        ImGui::Text("Performance");
+        ImGui::Separator();
+        ImGui::Text("FPS: %.1f", 1.0f / m_AverageFrameTime);
+        ImGui::Text("Frame Time: %.3f ms", m_AverageFrameTime * 1000.0f);
+        
+        ImGui::Separator();
+        
+        ImGui::Text("Frame Time Graph");
+        char overlay[32];
+        sprintf(overlay, "%.3f ms", m_AverageFrameTime * 1000.0f);
+        ImGui::PlotLines("##FrameTimes", m_FrameTimes, IM_ARRAYSIZE(m_FrameTimes), m_FrameTimeIndex, 
+                       overlay, 0.0f, 0.040f, ImVec2(0, 80));
+        
+        if (ImGui::BeginPopupContextWindow())
+        {
+            if (ImGui::MenuItem("Custom", NULL, corner == -1)) corner = -1;
+            if (ImGui::MenuItem("Top-left", NULL, corner == 0)) corner = 0;
+            if (ImGui::MenuItem("Top-right", NULL, corner == 1)) corner = 1;
+            if (ImGui::MenuItem("Bottom-left", NULL, corner == 2)) corner = 2;
+            if (ImGui::MenuItem("Bottom-right", NULL, corner == 3)) corner = 3;
+            if (ImGui::MenuItem("Close")) m_ShowPerformanceOverlay = false;
+            ImGui::EndPopup();
+        }
+    }
+    ImGui::End();
+}

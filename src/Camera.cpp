@@ -7,6 +7,12 @@ Camera::Camera(float fov, float aspectRatio, float nearPlane, float farPlane)
 {
     UpdateViewMatrix();
     UpdateProjectionMatrix();
+    glfwSetScrollCallback(glfwGetCurrentContext(), [](GLFWwindow* window, double xoffset, double yoffset) {
+        Camera* camera = static_cast<Camera*>(glfwGetWindowUserPointer(window));
+        if (camera)
+            camera->ProcessMouseScroll(static_cast<float>(yoffset));
+    });
+    glfwSetWindowUserPointer(glfwGetCurrentContext(), this);
 }
 
 void Camera::ProcessInput(GLFWwindow* window, float deltaTime)

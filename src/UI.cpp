@@ -18,7 +18,8 @@ UI::UI() = default;
 
 UI::~UI()
 {
-    Shutdown();
+    if (ImGui::GetCurrentContext())
+        Shutdown();
 }
 
 bool UI::Initialize(GLFWwindow* window)

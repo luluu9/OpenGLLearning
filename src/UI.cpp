@@ -255,6 +255,15 @@ void UI::RenderMainMenuBar()
 
 void UI::RenderShaderEditor()
 {
+    // Set default position for the shader editor (first time it's shown)
+    static bool firstShown = true;
+    if (firstShown && m_ShowShaderEditor)
+    {
+        ImGui::SetNextWindowPos(ImVec2(50, 50), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(600, 700), ImGuiCond_FirstUseEver);
+        firstShown = false;
+    }
+    
     ImGui::Begin("Shader Editor", &m_ShowShaderEditor);
     
     static bool firstTime = true;
@@ -287,26 +296,42 @@ void UI::RenderShaderEditor()
     size.y = size.y / 2.0f - 35.0f;
     
     ImGui::Text("Vertex Shader");
-    // Fix InputTextMultiline to use properly resizable buffers
-    static char vertBuffer[8192] = "";
-    if (m_VertexShaderSource.size() < sizeof(vertBuffer)) {
-        strcpy(vertBuffer, m_VertexShaderSource.c_str());
-    }
-    if (ImGui::InputTextMultiline("##VertexShader", vertBuffer, sizeof(vertBuffer), size, ImGuiInputTextFlags_AllowTabInput))
+    // Use InputTextMultiline with a callback that properly handles std::string
+    if (ImGui::InputTextMultiline("##VertexShader", 
+                                 const_cast<char*>(m_VertexShaderSource.data()), 
+                                 m_VertexShaderSource.capacity() + 1, 
+                                 size, 
+                                 ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_CallbackResize,
+                                 [](ImGuiInputTextCallbackData* data) -> int {
+                                     if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
+                                     {
+                                         std::string* str = static_cast<std::string*>(data->UserData);
+                                         str->resize(data->BufTextLen);
+                                         data->Buf = const_cast<char*>(str->c_str());
+                                     }
+                                     return 0;
+                                 }, &m_VertexShaderSource))
     {
-        m_VertexShaderSource = vertBuffer;
         m_ShaderModified = true;
     }
     
     ImGui::Text("Fragment Shader");
-    // Fix InputTextMultiline to use properly resizable buffers
-    static char fragBuffer[8192] = "";
-    if (m_FragmentShaderSource.size() < sizeof(fragBuffer)) {
-        strcpy(fragBuffer, m_FragmentShaderSource.c_str());
-    }
-    if (ImGui::InputTextMultiline("##FragmentShader", fragBuffer, sizeof(fragBuffer), size, ImGuiInputTextFlags_AllowTabInput))
+    // Use InputTextMultiline with a callback that properly handles std::string
+    if (ImGui::InputTextMultiline("##FragmentShader", 
+                                 const_cast<char*>(m_FragmentShaderSource.data()), 
+                                 m_FragmentShaderSource.capacity() + 1, 
+                                 size, 
+                                 ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_CallbackResize,
+                                 [](ImGuiInputTextCallbackData* data) -> int {
+                                     if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
+                                     {
+                                         std::string* str = static_cast<std::string*>(data->UserData);
+                                         str->resize(data->BufTextLen);
+                                         data->Buf = const_cast<char*>(str->c_str());
+                                     }
+                                     return 0;
+                                 }, &m_FragmentShaderSource))
     {
-        m_FragmentShaderSource = fragBuffer;
         m_ShaderModified = true;
     }
     
@@ -344,6 +369,15 @@ void UI::RenderShaderEditor()
 
 void UI::RenderObjectProperties()
 {
+    // Set default position for the Object Properties window (first time it's shown)
+    static bool firstShown = true;
+    if (firstShown && m_ShowObjectProperties)
+    {
+        ImGui::SetNextWindowPos(ImVec2(650, 50), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(400, 550), ImGuiCond_FirstUseEver);
+        firstShown = false;
+    }
+    
     ImGui::Begin("Object Properties", &m_ShowObjectProperties);
     
     Application* app = Application::GetInstance();
@@ -444,6 +478,15 @@ void UI::RenderObjectProperties()
 
 void UI::RenderSceneSettings()
 {
+    // Set default position for the Scene Settings window (first time it's shown)
+    static bool firstShown = true;
+    if (firstShown && m_ShowSceneSettings)
+    {
+        ImGui::SetNextWindowPos(ImVec2(650, 600), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
+        firstShown = false;
+    }
+    
     ImGui::Begin("Scene Settings", &m_ShowSceneSettings);
     
     Application* app = Application::GetInstance();

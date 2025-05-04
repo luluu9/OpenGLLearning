@@ -1,6 +1,8 @@
 #include "Primitives.h"
 #include "Mesh.h"
+#include "ResourceManager.h"
 #include <vector>
+#include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
@@ -299,4 +301,81 @@ glm::vec2 Primitives::CalculateSphereUV(const glm::vec3& point)
     float u = 0.5f + (atan2(point.z, point.x) / (2.0f * glm::pi<float>()));
     float v = 0.5f - (asin(point.y) / glm::pi<float>());
     return glm::vec2(u, v);
+}
+
+std::unique_ptr<SceneObject> Primitives::CreatePrimitiveObject(const std::string& type, const std::string& name)
+{
+    // Create a new scene object with the specified name
+    auto object = std::make_unique<SceneObject>(name);
+    
+    // Create a mesh based on the primitive type
+    std::unique_ptr<Mesh> mesh;
+    
+    if (type == "Cube")
+    {
+        mesh = CreateCube();
+    }
+    else if (type == "Sphere")
+    {
+        mesh = CreateSphere();
+    }
+    else if (type == "Plane")
+    {
+        mesh = CreatePlane();
+    }
+    else if (type == "Cylinder")
+    {
+        mesh = CreateCylinder();
+    }
+    else if (type == "Cone")
+    {
+        mesh = CreateCone();
+    }
+    else
+    {
+        std::cerr << "Unknown primitive type: " << type << std::endl;
+        return nullptr;
+    }
+    
+    // Set the mesh to the object
+    object->SetMesh(std::move(mesh));
+    
+    // Get default shader from ResourceManager or load it if it doesn't exist
+    ResourceManager* resourceManager = ResourceManager::GetInstance();
+    Shader* shader = resourceManager->GetShader("default");
+    
+    if (!shader)
+    {
+        // Load the default shader
+        shader = resourceManager->LoadShaderFromFile("default", 
+            "resources/shaders/default.vert", 
+            "resources/shaders/default.frag");
+        
+        if (!shader)
+        {
+            std::cerr << "Failed to load default shaders for " << name << std::endl;
+            return nullptr;
+        }
+    }
+    
+    // Set the shader to the object
+    object->SetShader(shader);
+    
+    // Set default material properties
+    SetupDefaultMaterial(object.get());
+    
+    return object;
+}
+
+void Primitives::SetupDefaultMaterial(SceneObject* object)
+{
+    if (!object) return;
+    
+    Material material;
+    material.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+    material.diffuse = glm::vec3(0.7f, 0.7f, 0.7f);
+    material.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+    material.shininess = 32.0f;
+    
+    object->SetMaterial(material);
 }

@@ -158,9 +158,6 @@ bool Scene::SaveToFile(const std::string& filepath)
     }
 }
 
-// For loading objects based on primitive type
-extern std::unique_ptr<SceneObject> CreatePrimitiveObject(const std::string& type, const std::string& name);
-
 bool Scene::LoadFromFile(const std::string& filepath)
 {
     try
@@ -236,8 +233,8 @@ bool Scene::LoadFromFile(const std::string& filepath)
                     type = objectJson["type"];
                 }
                 
-                // Create the object based on type
-                auto object = CreatePrimitiveObject(type, name);
+                // Create the object based on type - use Primitives class static method
+                auto object = Primitives::CreatePrimitiveObject(type, name);
                 if (!object)
                     continue;
                     

@@ -29,8 +29,6 @@ bool UI::Initialize(GLFWwindow* window)
         
     m_Window = window;
     
-    std::cout << "Initializing ImGui..." << std::endl;
-        
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -44,8 +42,6 @@ bool UI::Initialize(GLFWwindow* window)
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
-    
-    std::cout << "ImGui initialization complete!" << std::endl;
     
     return true;
 }

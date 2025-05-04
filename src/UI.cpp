@@ -35,14 +35,8 @@ bool UI::Initialize(GLFWwindow* window)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    
-    // Explicitly enable UI visibility to ensure it appears
-    m_ShowDemoWindow = true; // Enable demo window temporarily for testing
-    m_ShowObjectProperties = true;
-    m_ShowSceneSettings = true;
-    m_ShowPerformanceOverlay = true;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();

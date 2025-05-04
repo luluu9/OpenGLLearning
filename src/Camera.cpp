@@ -38,30 +38,27 @@ void Camera::ProcessInput(GLFWwindow* window, float deltaTime)
         m_Position -= m_WorldUp * velocity;
     
     // Handle mouse input
-    static double lastX = 0.0, lastY = 0.0;
-    static bool firstMouse = true;
-    
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
     
-    if (firstMouse)
+    if (m_FirstMouse)
     {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
+        m_LastX = xpos;
+        m_LastY = ypos;
+        m_FirstMouse = false;
     }
     
     // Only rotate camera if right mouse button is pressed
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
     {
-        float xoffset = static_cast<float>(xpos - lastX);
-        float yoffset = static_cast<float>(lastY - ypos); // Reversed since y-coordinates range from bottom to top
+        float xoffset = static_cast<float>(xpos - m_LastX);
+        float yoffset = static_cast<float>(m_LastY - ypos); // Reversed since y-coordinates range from bottom to top
         
         ProcessMouseMovement(xoffset, yoffset);
     }
     
-    lastX = xpos;
-    lastY = ypos;
+    m_LastX = xpos;
+    m_LastY = ypos;
     
     // Update the view matrix after processing all inputs
     UpdateViewMatrix();

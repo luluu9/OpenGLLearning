@@ -295,6 +295,28 @@ void UI::RenderShaderEditor()
     
     ImGui::Begin("Shader Editor", &m_ShowShaderEditor);
     
+    // Show a notice if no object is selected
+    if (!m_SelectedObject)
+    {
+        ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.5f, 1.0f), 
+            "No object selected. Please select an object in the Object Properties panel.");
+        ImGui::Separator();
+    }
+    
+    // Show compilation status messages
+    if (!m_CompilationMessage.empty())
+    {
+        if (m_CompilationSuccessful)
+        {
+            ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "%s", m_CompilationMessage.c_str());
+        }
+        else
+        {
+            ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%s", m_CompilationMessage.c_str());
+        }
+        ImGui::Separator();
+    }
+    
     static bool firstTime = true;
     if (firstTime)
     {
@@ -322,7 +344,7 @@ void UI::RenderShaderEditor()
     
     // Set up some reasonable sizes for the editor
     ImVec2 size = ImGui::GetContentRegionAvail();
-    size.y = size.y / 2.0f - 35.0f;
+    size.y = size.y / 2.0f - 45.0f;
     
     ImGui::Text("Vertex Shader");
     // Use InputTextMultiline with a callback that properly handles std::string
@@ -364,6 +386,18 @@ void UI::RenderShaderEditor()
         m_ShaderModified = true;
     }
     
+    // Show status indicator if the shader has been modified
+    if (m_ShaderModified)
+    {
+        ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.0f, 1.0f), "Shader modified - Click 'Compile Shader' to apply changes");
+    }
+    
+    // Compile button (disabled if no object is selected)
+    if (!m_SelectedObject)
+    {
+        ImGui::BeginDisabled();
+    }
+    
     if (ImGui::Button("Compile Shader") || ImGui::IsKeyPressed(ImGuiKey_F5))
     {
         if (m_OnCompileShader && m_SelectedObject)
@@ -371,26 +405,62 @@ void UI::RenderShaderEditor()
             Shader* shader = m_SelectedObject->GetShader();
             if (shader)
             {
+                // Try to compile the shader
                 bool success = m_OnCompileShader(shader, m_VertexShaderSource, m_FragmentShaderSource);
                 if (success)
                 {
                     m_ShaderModified = false;
-                    ImGui::OpenPopup("Shader Compilation");
+                    m_CompilationSuccessful = true;
+                    m_CompilationMessage = "Shader compiled successfully!";
                 }
+                else
+                {
+                    m_CompilationSuccessful = false;
+                    m_CompilationMessage = "Failed to compile shader: " + shader->GetCompilationLog();
+                }
+            }
+            else
+            {
+                m_CompilationSuccessful = false;
+                m_CompilationMessage = "Object does not have a shader attached!";
             }
         }
     }
     
-    // Compilation result popup
-    if (ImGui::BeginPopupModal("Shader Compilation", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+    if (!m_SelectedObject)
     {
-        ImGui::Text("Shader compiled successfully!");
-        ImGui::Separator();
+        ImGui::EndDisabled();
+    }
+    
+    ImGui::SameLine();
+    if (ImGui::Button("Reset to Default"))
+    {
+        // Load default shaders again
+        std::ifstream vertFile("resources/shaders/default.vert");
+        if (vertFile.is_open())
+        {
+            std::stringstream buffer;
+            buffer << vertFile.rdbuf();
+            m_VertexShaderSource = buffer.str();
+            vertFile.close();
+        }
         
-        if (ImGui::Button("OK", ImVec2(120, 0)))
-            ImGui::CloseCurrentPopup();
-            
-        ImGui::EndPopup();
+        std::ifstream fragFile("resources/shaders/default.frag");
+        if (fragFile.is_open())
+        {
+            std::stringstream buffer;
+            buffer << fragFile.rdbuf();
+            m_FragmentShaderSource = buffer.str();
+            fragFile.close();
+        }
+        
+        m_ShaderModified = true;
+    }
+    
+    ImGui::SameLine();
+    if (ImGui::Button("Clear Message"))
+    {
+        m_CompilationMessage.clear();
     }
     
     ImGui::End();

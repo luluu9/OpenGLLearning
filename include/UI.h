@@ -80,6 +80,8 @@ private:
     std::string m_VertexShaderSource;
     std::string m_FragmentShaderSource;
     bool m_ShaderModified = false;
+    bool m_CompilationSuccessful = false;
+    std::string m_CompilationMessage;
     
     // Callbacks
     std::function<void(const std::string&)> m_OnSceneLoad;

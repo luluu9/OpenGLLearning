@@ -8,15 +8,8 @@
 
 using json = nlohmann::json;
 
-Scene::Scene()
-{
-    // Add a default light to the scene
-    Light defaultLight;
-    defaultLight.position = glm::vec3(5.0f, 5.0f, 5.0f);
-    defaultLight.color = glm::vec3(1.0f, 1.0f, 1.0f);
-    defaultLight.intensity = 1.0f;
-    
-    m_Lights.push_back(defaultLight);
+Scene::Scene() { 
+    AddDefaultLight();
 }
 
 Scene::~Scene() = default;
@@ -56,6 +49,22 @@ void Scene::RemoveObject(SceneObject* object)
 void Scene::ClearObjects()
 {
     m_Objects.clear();
+}
+
+void Scene::ClearLights()
+{
+    m_Lights.clear();
+}
+
+int Scene::AddDefaultLight()
+{
+    std::unique_ptr<Light> defaultLight = std::make_unique<Light>();
+    defaultLight->position = glm::vec3(5.0f, 5.0f, 5.0f);
+    defaultLight->color = glm::vec3(1.0f, 1.0f, 1.0f);
+    defaultLight->intensity = 2.0f;
+    
+    m_Lights.push_back(std::move(*defaultLight));
+    return static_cast<int>(m_Lights.size() - 1);
 }
 
 int Scene::AddLight(const Light& light)

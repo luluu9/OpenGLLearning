@@ -1,7 +1,9 @@
 #pragma once
 
+#define GLFW_EXPOSE_NATIVE_WIN32
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
 #include <string>
 #include <functional>
 
@@ -55,6 +57,10 @@ private:
     void RenderObjectProperties();
     void RenderSceneSettings();
     void RenderPerformanceOverlay();
+    
+    // File dialogs
+    std::string OpenFileDialog(const char* filter);
+    std::string SaveFileDialog(const char* filter);
     
     // UI state
     bool m_ShowDemoWindow = false;

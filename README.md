@@ -26,7 +26,7 @@ An interactive educational desktop application for Windows that allows users to 
 | Object Transformations    | ⏳ Pending  | UI controls exist but need testing                         |
 | Material Editing          | ⏳ Pending  | UI controls exist but need testing                         |
 | Shader Editor             | ⏳ Pending  | Basic infrastructure exists                                |
-| Scene Save/Load           | ⏳ Pending  | UI elements exist but functionality untested               |
+| Scene Save/Load           | ✅ Complete | Basic save/load dialogs with JSON processing               |
 
 ## Prerequisites
 

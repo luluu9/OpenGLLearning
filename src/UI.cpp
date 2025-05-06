@@ -14,6 +14,11 @@
 #include <fstream>
 #include <sstream>
 
+// Windows file dialog includes
+#include <Windows.h>
+#include <commdlg.h>
+#include <direct.h>
+
 UI::UI() = default;
 
 UI::~UI()
@@ -113,21 +118,36 @@ void UI::RenderMainMenuBar()
         {
             if (ImGui::MenuItem("New Scene", "Ctrl+N"))
             {
-                // TODO: Implement New Scene functionality
+                Application* app = Application::GetInstance();
+                if (app && app->GetScene())
+                {
+                    app->GetScene()->ClearObjects();
+                    app->GetScene()->ClearLights();
+                    app->GetScene()->AddDefaultLight();
+                    
+                    m_SelectedObject = nullptr;
+                }
             }
             
             if (ImGui::MenuItem("Open Scene", "Ctrl+O"))
             {
-                // TODO: Show file dialog to open scene
-                if (m_OnSceneLoad)
-                    m_OnSceneLoad("resources/scenes/default.json");
+                // Show file dialog to open scene
+                std::string filepath = OpenFileDialog("JSON Scene Files\0*.json\0All Files\0*.*\0");
+                if (!filepath.empty() && m_OnSceneLoad)
+                {
+                    m_OnSceneLoad(filepath);
+                    m_SelectedObject = nullptr; // Reset selected object
+                }
             }
             
             if (ImGui::MenuItem("Save Scene", "Ctrl+S"))
             {
-                // TODO: Show file dialog to save scene
-                if (m_OnSceneSave)
-                    m_OnSceneSave("resources/scenes/default.json");
+                // Show file dialog to save scene
+                std::string filepath = SaveFileDialog("JSON Scene Files\0*.json\0All Files\0*.*\0");
+                if (!filepath.empty() && m_OnSceneSave)
+                {
+                    m_OnSceneSave(filepath);
+                }
             }
             
             ImGui::Separator();
@@ -638,6 +658,82 @@ void UI::RenderPerformanceOverlay()
         }
     }
     ImGui::End();
+}
+
+// Open file dialog for loading a scene
+std::string UI::OpenFileDialog(const char* filter)
+{
+    OPENFILENAMEA ofn;
+    char szFile[260] = { 0 };
+    
+    ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
+    ofn.lStructSize = sizeof(OPENFILENAMEA);
+    ofn.hwndOwner = glfwGetWin32Window(m_Window);
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = filter;
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    
+    // Get the current working directory
+    char currentDir[MAX_PATH];
+    _getcwd(currentDir, MAX_PATH);
+
+    // Set initial directory to the resources/scenes folder
+    std::string initialDir = std::string(currentDir) + "\\resources\\scenes";
+    ofn.lpstrInitialDir = initialDir.c_str();
+    
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+    
+    if (GetOpenFileNameA(&ofn) == TRUE)
+    {
+        return ofn.lpstrFile;
+    }
+    
+    return "";
+}
+
+// Save file dialog for saving a scene
+std::string UI::SaveFileDialog(const char* filter)
+{
+    OPENFILENAMEA ofn;
+    char szFile[260] = { 0 };
+    
+    ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
+    ofn.lStructSize = sizeof(OPENFILENAMEA);
+    ofn.hwndOwner = glfwGetWin32Window(m_Window);
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = filter;
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    
+    // Get the current working directory
+    char currentDir[MAX_PATH];
+    _getcwd(currentDir, MAX_PATH);
+
+    // Set initial directory to the resources/scenes folder
+    std::string initialDir = std::string(currentDir) + "\\resources\\scenes";
+    ofn.lpstrInitialDir = initialDir.c_str();
+    
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
+    
+    if (GetSaveFileNameA(&ofn) == TRUE)
+    {
+        // Check if the filename has the .json extension
+        std::string filename = ofn.lpstrFile;
+        if (filename.substr(filename.find_last_of(".") + 1) != "json")
+        {
+            // Add .json extension if needed
+            filename += ".json";
+        }
+        
+        return filename;
+    }
+    
+    return "";
 }
 
 bool UI::IsCapturingKeyboard() const

@@ -30,6 +30,8 @@ public:
     const std::vector<Light>& GetLights() const { return m_Lights; }
     
     // Light management
+    void ClearLights();
+    int AddDefaultLight();
     int AddLight(const Light& light);
     void RemoveLight(int index);
     Light* GetLight(int index);

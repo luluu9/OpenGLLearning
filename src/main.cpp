@@ -7,8 +7,6 @@
 #include <memory>
 #include <string>
 
-// Application-wide callbacks
-bool CompileAndSetShader(SceneObject* object, const std::string& vertexSource, const std::string& fragmentSource);
 
 int main()
 {
@@ -71,30 +69,4 @@ int main()
     app.Run();
     
     return 0;
-}
-
-bool CompileAndSetShader(SceneObject* object, const std::string& vertexSource, const std::string& fragmentSource)
-{
-    if (!object)
-        return false;
-        
-    // Generate a unique name for the shader based on the object name
-    std::string shaderName = object->GetName() + "_shader";
-    
-    // Get the resource manager
-    ResourceManager* resourceManager = ResourceManager::GetInstance();
-    
-    // Load the shader from source
-    Shader* shader = resourceManager->LoadShaderFromSource(shaderName, vertexSource, fragmentSource);
-    
-    if (!shader)
-    {
-        std::cerr << "Failed to compile shader for " << object->GetName() << std::endl;
-        return false;
-    }
-    
-    // Set the shader to the object
-    object->SetShader(shader);
-    
-    return true;
 }

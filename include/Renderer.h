@@ -30,7 +30,6 @@ public:
     void Render(Scene* scene, Camera* camera);
     void EndFrame();
     
-    // New methods for UI rendering
     void PrepareForUIRendering();
     void RestoreAfterUIRendering();
     

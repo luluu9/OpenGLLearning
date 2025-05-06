@@ -296,13 +296,6 @@ std::unique_ptr<Mesh> Primitives::CreateCone(float radius, float height, unsigne
     return mesh;
 }
 
-glm::vec2 Primitives::CalculateSphereUV(const glm::vec3& point)
-{
-    float u = 0.5f + (atan2(point.z, point.x) / (2.0f * glm::pi<float>()));
-    float v = 0.5f - (asin(point.y) / glm::pi<float>());
-    return glm::vec2(u, v);
-}
-
 std::unique_ptr<SceneObject> Primitives::CreatePrimitiveObject(const std::string& type, const std::string& name)
 {
     // Create a new scene object with the specified name

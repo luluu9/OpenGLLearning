@@ -24,10 +24,6 @@ public:
     UI* GetUI() const { return m_UI.get(); }
     Camera* GetCamera() const { return m_Camera.get(); }
     
-    int GetWidth() const { return m_Width; }
-    int GetHeight() const { return m_Height; }
-    float GetDeltaTime() const { return m_DeltaTime; }
-    
 private:
     void ProcessInput();
     void Update();

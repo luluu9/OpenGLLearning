@@ -20,8 +20,6 @@ public:
     static std::unique_ptr<SceneObject> CreatePrimitiveObject(const std::string& type, const std::string& name);
     
 private:
-    // Helper methods for UV calculations
-    static glm::vec2 CalculateSphereUV(const glm::vec3& point);
     
     // Helper method to set up default material
     static void SetupDefaultMaterial(SceneObject* object);

@@ -639,3 +639,13 @@ void UI::RenderPerformanceOverlay()
     }
     ImGui::End();
 }
+
+bool UI::IsCapturingKeyboard() const
+{
+    return ImGui::GetIO().WantCaptureKeyboard;
+}
+
+bool UI::IsCapturingMouse() const
+{
+    return ImGui::GetIO().WantCaptureMouse;
+}

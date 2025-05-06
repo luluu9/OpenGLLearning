@@ -9,16 +9,25 @@ Camera::Camera(float fov, float aspectRatio, float nearPlane, float farPlane)
     UpdateProjectionMatrix();
     glfwSetScrollCallback(glfwGetCurrentContext(), [](GLFWwindow* window, double xoffset, double yoffset) {
         Camera* camera = static_cast<Camera*>(glfwGetWindowUserPointer(window));
-        if (camera)
+        if (camera && !camera->GetIgnoreScrollInput())
             camera->ProcessMouseScroll(static_cast<float>(yoffset));
     });
     glfwSetWindowUserPointer(glfwGetCurrentContext(), this);
 }
 
-void Camera::ProcessInput(GLFWwindow* window, float deltaTime)
+void Camera::ProcessInput(GLFWwindow* window, float deltaTime, bool ignoreKeyboardInput, bool ignoreMouseInput)
 {
+    if (ignoreMouseInput)
+        SetIgnoreScrollInput(true);
+    else
+        SetIgnoreScrollInput(false);
+
+    // Only process keyboard input if UI is not capturing it
+    if (ignoreKeyboardInput)
+        return;
+
     float velocity = m_MovementSpeed * deltaTime;
-    
+
     // Forward/backward movement
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         m_Position += m_Front * velocity;
@@ -36,6 +45,7 @@ void Camera::ProcessInput(GLFWwindow* window, float deltaTime)
         m_Position += m_WorldUp * velocity;
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
         m_Position -= m_WorldUp * velocity;
+
     
     // Handle mouse input
     double xpos, ypos;

@@ -117,9 +117,11 @@ void Application::ProcessInput()
     if (glfwGetKey(m_Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         m_Running = false;
 
-    // Process camera input
-    if (m_Camera)
-        m_Camera->ProcessInput(m_Window, m_DeltaTime);
+    // Process camera input only if UI is not capturing keyboard input
+    if (m_Camera && m_UI)
+    {
+        m_Camera->ProcessInput(m_Window, m_DeltaTime, m_UI->IsCapturingKeyboard(), m_UI->IsCapturingMouse());
+    }
 }
 
 void Application::Update()

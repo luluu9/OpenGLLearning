@@ -10,7 +10,7 @@ public:
     Camera(float fov, float aspectRatio, float nearPlane, float farPlane);
     ~Camera() = default;
 
-    void ProcessInput(GLFWwindow* window, float deltaTime);
+    void ProcessInput(GLFWwindow* window, float deltaTime, bool ignoreKeyboardInput, bool ignoreMouseInput);
     void ProcessMouseMovement(float xoffset, float yoffset);
     void ProcessMouseScroll(float yoffset);
 
@@ -38,6 +38,9 @@ public:
     void SetMouseSensitivity(float sensitivity) { m_MouseSensitivity = sensitivity; }
     float GetMouseSensitivity() const { return m_MouseSensitivity; }
 
+    void SetIgnoreScrollInput(bool ignore) { m_IgnoreScrollInput = ignore; }
+    bool GetIgnoreScrollInput() const { return m_IgnoreScrollInput; }
+
 private:
     void UpdateViewMatrix();
     void UpdateProjectionMatrix();
@@ -62,6 +65,7 @@ private:
     // Camera options
     float m_MovementSpeed = 2.5f;
     float m_MouseSensitivity = 0.1f;
+    bool m_IgnoreScrollInput = false;
 
     // Cached matrices
     glm::mat4 m_ViewMatrix = glm::mat4(1.0f);

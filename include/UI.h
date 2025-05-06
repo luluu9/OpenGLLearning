@@ -45,6 +45,9 @@ public:
     // Set callbacks for when shader code is compiled
     void SetOnCompileShaderCallback(std::function<bool(Shader*, const std::string&, const std::string&)> callback) { m_OnCompileShader = callback; }
     
+    bool IsCapturingKeyboard() const;
+    bool IsCapturingMouse() const;
+    
 private:
     // ImGui windows
     void RenderMainMenuBar();

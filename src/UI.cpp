@@ -255,12 +255,21 @@ void UI::RenderMainMenuBar()
 
 void UI::RenderShaderEditor()
 {
-    // Set default position for the shader editor (first time it's shown)
+    // Set shader editor position at top-right corner
     static bool firstShown = true;
     if (firstShown && m_ShowShaderEditor)
     {
-        ImGui::SetNextWindowPos(ImVec2(50, 50), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(600, 700), ImGuiCond_FirstUseEver);
+        const ImGuiViewport* viewport = ImGui::GetMainViewport();
+        ImVec2 workPos = viewport->WorkPos;
+        ImVec2 workSize = viewport->WorkSize;
+        float windowWidth = 600.0f;
+        float windowHeight = workSize.y * 0.5f; // 50% of window height
+        
+        ImGui::SetNextWindowPos(
+            ImVec2(workPos.x + workSize.x - windowWidth - panelMargin, workPos.y + panelMargin), 
+            ImGuiCond_FirstUseEver
+        );
+        ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight), ImGuiCond_FirstUseEver);
         firstShown = false;
     }
     
@@ -369,12 +378,26 @@ void UI::RenderShaderEditor()
 
 void UI::RenderObjectProperties()
 {
-    // Set default position for the Object Properties window (first time it's shown)
+    // Position the Object Properties panel below the Shader Editor, taking up left half
     static bool firstShown = true;
     if (firstShown && m_ShowObjectProperties)
     {
-        ImGui::SetNextWindowPos(ImVec2(650, 50), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(400, 550), ImGuiCond_FirstUseEver);
+        const ImGuiViewport* viewport = ImGui::GetMainViewport();
+        ImVec2 workPos = viewport->WorkPos;
+        ImVec2 workSize = viewport->WorkSize;
+        
+        // Calculate position based on Shader Editor position (top-right)
+        float shaderEditorWidth = 600.0f;
+        float shaderEditorHeight = workSize.y * 0.5f;
+        float windowWidth = shaderEditorWidth / 2.0f; // Half of shader editor width
+        float windowHeight = workSize.y * 0.45f; // Fill remaining height with some padding
+        
+        // Position below shader editor, on the left half
+        ImGui::SetNextWindowPos(
+            ImVec2(workPos.x + workSize.x - shaderEditorWidth - panelMargin, workPos.y + shaderEditorHeight + panelMargin), 
+            ImGuiCond_FirstUseEver
+        );
+        ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight), ImGuiCond_FirstUseEver);
         firstShown = false;
     }
     
@@ -478,12 +501,26 @@ void UI::RenderObjectProperties()
 
 void UI::RenderSceneSettings()
 {
-    // Set default position for the Scene Settings window (first time it's shown)
+    // Position the Scene Settings panel below the Shader Editor, taking up right half
     static bool firstShown = true;
     if (firstShown && m_ShowSceneSettings)
     {
-        ImGui::SetNextWindowPos(ImVec2(650, 600), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
+        const ImGuiViewport* viewport = ImGui::GetMainViewport();
+        ImVec2 workPos = viewport->WorkPos;
+        ImVec2 workSize = viewport->WorkSize;
+        
+        // Calculate position based on Shader Editor position (top-right)
+        float shaderEditorWidth = 600.0f;
+        float shaderEditorHeight = workSize.y * 0.5f;
+        float windowWidth = shaderEditorWidth / 2.0f; // Half of shader editor width
+        float windowHeight = workSize.y * 0.45f; // Fill remaining height with some padding
+        
+        // Position below shader editor, on the right half
+        ImGui::SetNextWindowPos(
+            ImVec2(workPos.x + workSize.x - windowWidth - panelMargin, workPos.y + shaderEditorHeight + panelMargin), 
+            ImGuiCond_FirstUseEver
+        );
+        ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight), ImGuiCond_FirstUseEver);
         firstShown = false;
     }
     

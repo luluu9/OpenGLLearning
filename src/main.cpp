@@ -13,7 +13,7 @@ bool CompileAndSetShader(SceneObject* object, const std::string& vertexSource, c
 int main()
 {
     // Create application instance
-    Application app("OpenGL Learning", 1280, 720);
+    Application app("OpenGL Learning", 1920, 1080);
     
     // Initialize application
     if (!app.Initialize())

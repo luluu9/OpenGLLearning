@@ -55,10 +55,13 @@ private:
     
     // UI state
     bool m_ShowDemoWindow = false;
-    bool m_ShowShaderEditor = false;
+    bool m_ShowShaderEditor = true;
     bool m_ShowObjectProperties = true;
     bool m_ShowSceneSettings = true;
     bool m_ShowPerformanceOverlay = true;
+
+    // UI settings
+    int panelMargin = 30; 
     
     // References
     GLFWwindow* m_Window = nullptr;

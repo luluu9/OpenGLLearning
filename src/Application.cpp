@@ -74,6 +74,7 @@ bool Application::Initialize()
         glViewport(0, 0, width, height);
         Application* app = Application::GetInstance();
         if (app && app->GetCamera()) {
+            if (height == 0 || width == 0) return;
             app->GetCamera()->SetAspectRatio(static_cast<float>(width) / static_cast<float>(height));
         }
     });

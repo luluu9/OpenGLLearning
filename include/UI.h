@@ -24,28 +24,28 @@ public:
     void Render();
     
     // Shader editing
-    void ShowShaderEditor(bool show) { m_ShowShaderEditor = show; }
-    bool IsShaderEditorShown() const { return m_ShowShaderEditor; }
+    void ShowShaderEditor(bool show) { showShaderEditor = show; }
+    bool IsShaderEditorShown() const { return showShaderEditor; }
     
     // Object properties panel
-    void ShowObjectProperties(bool show) { m_ShowObjectProperties = show; }
-    bool IsObjectPropertiesShown() const { return m_ShowObjectProperties; }
+    void ShowObjectProperties(bool show) { showObjectProperties = show; }
+    bool IsObjectPropertiesShown() const { return showObjectProperties; }
     
     // Scene settings panel
-    void ShowSceneSettings(bool show) { m_ShowSceneSettings = show; }
-    bool IsSceneSettingsShown() const { return m_ShowSceneSettings; }
+    void ShowSceneSettings(bool show) { showSceneSettings = show; }
+    bool IsSceneSettingsShown() const { return showSceneSettings; }
     
     // Set callback for when a new scene is loaded
-    void SetOnSceneLoadCallback(std::function<void(const std::string&)> callback) { m_OnSceneLoad = callback; }
+    void SetOnSceneLoadCallback(std::function<void(const std::string&)> callback) { onSceneLoad = callback; }
     
     // Set callback for when a scene is saved
-    void SetOnSceneSaveCallback(std::function<void(const std::string&)> callback) { m_OnSceneSave = callback; }
+    void SetOnSceneSaveCallback(std::function<void(const std::string&)> callback) { onSceneSave = callback; }
     
     // Set callback for when a new object is added
-    void SetOnAddObjectCallback(std::function<void(const std::string&)> callback) { m_OnAddObject = callback; }
+    void SetOnAddObjectCallback(std::function<void(const std::string&)> callback) { onAddObject = callback; }
     
     // Set callbacks for when shader code is compiled
-    void SetOnCompileShaderCallback(std::function<bool(Shader*, const std::string&, const std::string&)> callback) { m_OnCompileShader = callback; }
+    void SetOnCompileShaderCallback(std::function<bool(Shader*, const std::string&, const std::string&)> callback) { onCompileShader = callback; }
     
     bool IsCapturingKeyboard() const;
     bool IsCapturingMouse() const;
@@ -63,37 +63,37 @@ private:
     std::string SaveFileDialog(const char* filter);
     
     // UI state
-    bool m_ShowDemoWindow = false;
-    bool m_ShowShaderEditor = true;
-    bool m_ShowObjectProperties = true;
-    bool m_ShowSceneSettings = true;
-    bool m_ShowPerformanceOverlay = true;
+    bool showDemoWindow = false;
+    bool showShaderEditor = true;
+    bool showObjectProperties = true;
+    bool showSceneSettings = true;
+    bool showPerformanceOverlay = true;
 
     // UI settings
     int panelMargin = 30; 
     
     // References
-    GLFWwindow* m_Window = nullptr;
-    SceneObject* m_SelectedObject = nullptr;
+    GLFWwindow* window = nullptr;
+    SceneObject* selectedObject = nullptr;
     
     // Shader editor state
-    std::string m_VertexShaderSource;
-    std::string m_FragmentShaderSource;
-    bool m_ShaderModified = false;
-    bool m_CompilationSuccessful = false;
-    std::string m_CompilationMessage;
+    std::string vertexShaderSource;
+    std::string fragmentShaderSource;
+    bool shaderModified = false;
+    bool compilationSuccessful = false;
+    std::string compilationMessage;
     
     // Callbacks
-    std::function<void(const std::string&)> m_OnSceneLoad;
-    std::function<void(const std::string&)> m_OnSceneSave;
-    std::function<void(const std::string&)> m_OnAddObject;
-    std::function<bool(Shader*, const std::string&, const std::string&)> m_OnCompileShader;
+    std::function<void(const std::string&)> onSceneLoad;
+    std::function<void(const std::string&)> onSceneSave;
+    std::function<void(const std::string&)> onAddObject;
+    std::function<bool(Shader*, const std::string&, const std::string&)> onCompileShader;
     
     // Frame timing
-    float m_FrameTimes[100] = { 0 };
-    int m_FrameTimeIndex = 0;
-    float m_FrameTimeAccumulator = 0.0f;
-    int m_FrameCount = 0;
-    float m_AverageFrameTime = 0.0f;
-    float m_LastFrameTime = 0.0f;
+    float frameTimes[100] = { 0 };
+    int frameTimeIndex = 0;
+    float frameTimeAccumulator = 0.0f;
+    int frameCount = 0;
+    float averageFrameTime = 0.0f;
+    float lastFrameTime = 0.0f;
 };

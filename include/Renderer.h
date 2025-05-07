@@ -33,21 +33,21 @@ public:
     void PrepareForUIRendering();
     void RestoreAfterUIRendering();
     
-    void SetRenderMode(RenderMode mode) { m_RenderMode = mode; }
-    RenderMode GetRenderMode() const { return m_RenderMode; }
+    void SetRenderMode(RenderMode mode) { renderMode = mode; }
+    RenderMode GetRenderMode() const { return renderMode; }
     
-    void SetLightingModel(LightingModel model) { m_LightingModel = model; }
-    LightingModel GetLightingModel() const { return m_LightingModel; }
+    void SetLightingModel(LightingModel model) { lightingModel = model; }
+    LightingModel GetLightingModel() const { return lightingModel; }
     
-    void SetClearColor(const glm::vec4& color) { m_ClearColor = color; }
-    glm::vec4 GetClearColor() const { return m_ClearColor; }
+    void SetClearColor(const glm::vec4& color) { clearColor = color; }
+    glm::vec4 GetClearColor() const { return clearColor; }
     
-    void EnableDepthTest(bool enable) { m_DepthTestEnabled = enable; }
-    bool IsDepthTestEnabled() const { return m_DepthTestEnabled; }
+    void EnableDepthTest(bool enable) { depthTestEnabled = enable; }
+    bool IsDepthTestEnabled() const { return depthTestEnabled; }
     
 private:
-    RenderMode m_RenderMode = RenderMode::Solid;
-    LightingModel m_LightingModel = LightingModel::Phong;
-    glm::vec4 m_ClearColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
-    bool m_DepthTestEnabled = true;
+    RenderMode renderMode = RenderMode::Solid;
+    LightingModel lightingModel = LightingModel::Phong;
+    glm::vec4 clearColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
+    bool depthTestEnabled = true;
 };

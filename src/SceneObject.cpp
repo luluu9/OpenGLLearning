@@ -4,7 +4,7 @@
 #include <glm/gtx/euler_angles.hpp>
 
 SceneObject::SceneObject(const std::string& name)
-    : m_Name(name)
+    : name(name)
 {
 }
 
@@ -18,75 +18,75 @@ void SceneObject::Update(float deltaTime)
 
 void SceneObject::Draw()
 {
-    if (!m_Visible || !m_Mesh || !m_Shader)
+    if (!visible || !mesh || !shader)
         return;
         
-    m_Mesh->Draw();
+    mesh->Draw();
 }
 
-void SceneObject::SetPosition(const glm::vec3& position)
+void SceneObject::SetPosition(const glm::vec3& newPosition)
 {
-    m_Position = position;
-    m_TransformDirty = true;
+    position = newPosition;
+    transformDirty = true;
 }
 
-void SceneObject::SetRotation(const glm::vec3& rotation)
+void SceneObject::SetRotation(const glm::vec3& newRotation)
 {
-    m_Rotation = rotation;
-    m_TransformDirty = true;
+    rotation = newRotation;
+    transformDirty = true;
 }
 
-void SceneObject::SetScale(const glm::vec3& scale)
+void SceneObject::SetScale(const glm::vec3& newScale)
 {
-    m_Scale = scale;
-    m_TransformDirty = true;
+    scale = newScale;
+    transformDirty = true;
 }
 
 glm::mat4 SceneObject::GetTransform()
 {
-    if (m_TransformDirty)
+    if (transformDirty)
     {
         // Calculate the model matrix from position, rotation and scale
-        m_Transform = glm::mat4(1.0f);
+        transform = glm::mat4(1.0f);
         
         // Apply translation
-        m_Transform = glm::translate(m_Transform, m_Position);
+        transform = glm::translate(transform, position);
         
         // Apply rotation (Euler angles in degrees, converted to radians)
-        m_Transform = m_Transform * glm::eulerAngleXYZ(
-            glm::radians(m_Rotation.x),
-            glm::radians(m_Rotation.y),
-            glm::radians(m_Rotation.z)
+        transform = transform * glm::eulerAngleXYZ(
+            glm::radians(rotation.x),
+            glm::radians(rotation.y),
+            glm::radians(rotation.z)
         );
         
         // Apply scale
-        m_Transform = glm::scale(m_Transform, m_Scale);
+        transform = glm::scale(transform, scale);
         
-        m_TransformDirty = false;
+        transformDirty = false;
     }
     
-    return m_Transform;
+    return transform;
 }
 
-void SceneObject::SetTransform(const glm::mat4& transform)
+void SceneObject::SetTransform(const glm::mat4& newTransform)
 {
-    m_Transform = transform;
+    transform = newTransform;
     
     // Extract position, rotation, and scale from the matrix for editing
     // This is a simplification and may not be perfect for all cases
     
     // Extract position
-    m_Position.x = m_Transform[3][0];
-    m_Position.y = m_Transform[3][1];
-    m_Position.z = m_Transform[3][2];
+    position.x = transform[3][0];
+    position.y = transform[3][1];
+    position.z = transform[3][2];
     
     // Extract scale
-    m_Scale.x = glm::length(glm::vec3(m_Transform[0][0], m_Transform[0][1], m_Transform[0][2]));
-    m_Scale.y = glm::length(glm::vec3(m_Transform[1][0], m_Transform[1][1], m_Transform[1][2]));
-    m_Scale.z = glm::length(glm::vec3(m_Transform[2][0], m_Transform[2][1], m_Transform[2][2]));
+    scale.x = glm::length(glm::vec3(transform[0][0], transform[0][1], transform[0][2]));
+    scale.y = glm::length(glm::vec3(transform[1][0], transform[1][1], transform[1][2]));
+    scale.z = glm::length(glm::vec3(transform[2][0], transform[2][1], transform[2][2]));
     
     // To extract rotation correctly would require more complex matrix decomposition
     // For simplicity, we'll leave rotation as is
     
-    m_TransformDirty = false; // The transform is now up to date
+    transformDirty = false; // The transform is now up to date
 }

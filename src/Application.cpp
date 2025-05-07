@@ -5,12 +5,12 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
-Application* Application::s_Instance = nullptr;
+Application* Application::instance = nullptr;
 
 Application::Application(const std::string& title, int width, int height)
-    : m_Title(title), m_Width(width), m_Height(height)
+    : title(title), width(width), height(height)
 {
-    s_Instance = this;
+    instance = this;
 }
 
 Application::~Application()
@@ -34,8 +34,8 @@ bool Application::Initialize()
     glfwWindowHint(GLFW_SAMPLES, 4);
 
     // Create window
-    m_Window = glfwCreateWindow(m_Width, m_Height, m_Title.c_str(), nullptr, nullptr);
-    if (!m_Window)
+    window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+    if (!window)
     {
         std::cerr << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -43,34 +43,34 @@ bool Application::Initialize()
     }
 
     // Make the window's context current
-    glfwMakeContextCurrent(m_Window);
+    glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
 
     // Initialize Renderer
-    m_Renderer = std::make_unique<Renderer>();
-    if (!m_Renderer->Initialize())
+    renderer = std::make_unique<Renderer>();
+    if (!renderer->Initialize())
     {
         std::cerr << "Failed to initialize renderer" << std::endl;
         return false;
     }
 
     // Create camera
-    m_Camera = std::make_unique<Camera>(45.0f, static_cast<float>(m_Width) / static_cast<float>(m_Height), 0.1f, 1000.0f);
-    m_Camera->SetPosition(glm::vec3(0.0f, 0.0f, 5.0f));
+    camera = std::make_unique<Camera>(45.0f, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
+    camera->SetPosition(glm::vec3(0.0f, 0.0f, 5.0f));
 
     // Initialize Scene
-    m_Scene = std::make_unique<Scene>();
+    scene = std::make_unique<Scene>();
 
     // Initialize UI
-    m_UI = std::make_unique<UI>();
-    if (!m_UI->Initialize(m_Window))
+    ui = std::make_unique<UI>();
+    if (!ui->Initialize(window))
     {
         std::cerr << "Failed to initialize UI" << std::endl;
         return false;
     }
 
     // Setup resize callback
-    glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
+    glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height) {
         glViewport(0, 0, width, height);
         Application* app = Application::GetInstance();
         if (app && app->GetCamera()) {
@@ -78,21 +78,21 @@ bool Application::Initialize()
         }
     });
 
-    m_Running = true;
+    running = true;
     return true;
 }
 
 void Application::Run()
 {
-    m_LastFrameTime = static_cast<float>(glfwGetTime());
+    lastFrameTime = static_cast<float>(glfwGetTime());
 
     // Main loop
-    while (m_Running && !glfwWindowShouldClose(m_Window))
+    while (running && !glfwWindowShouldClose(window))
     {
         // Calculate delta time
         float currentTime = static_cast<float>(glfwGetTime());
-        m_DeltaTime = currentTime - m_LastFrameTime;
-        m_LastFrameTime = currentTime;
+        deltaTime = currentTime - lastFrameTime;
+        lastFrameTime = currentTime;
 
         // Process input
         ProcessInput();
@@ -104,7 +104,7 @@ void Application::Run()
         Render();
 
         // Swap front and back buffers
-        glfwSwapBuffers(m_Window);
+        glfwSwapBuffers(window);
 
         // Poll for and process events
         glfwPollEvents();
@@ -114,62 +114,62 @@ void Application::Run()
 void Application::ProcessInput()
 {
     // Check if ESC was pressed
-    if (glfwGetKey(m_Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        m_Running = false;
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        running = false;
 
     // Process camera input only if UI is not capturing keyboard input
-    if (m_Camera && m_UI)
+    if (camera && ui)
     {
-        m_Camera->ProcessInput(m_Window, m_DeltaTime, m_UI->IsCapturingKeyboard(), m_UI->IsCapturingMouse());
+        camera->ProcessInput(window, deltaTime, ui->IsCapturingKeyboard(), ui->IsCapturingMouse());
     }
 }
 
 void Application::Update()
 {
-    if (m_Scene)
-        m_Scene->Update(m_DeltaTime);
+    if (scene)
+        scene->Update(deltaTime);
 
-    if (m_UI)
-        m_UI->Update();
+    if (ui)
+    ui->Update();
 }
 
 void Application::Render()
 {
-    if (m_Renderer && m_Scene && m_Camera)
+    if (renderer && scene && camera)
     {
-        m_Renderer->BeginFrame();
-        m_Renderer->Render(m_Scene.get(), m_Camera.get());
+        renderer->BeginFrame();
+        renderer->Render(scene.get(), camera.get());
         
-        if (m_UI)
+        if (ui)
         {
             // Prepare OpenGL state for UI rendering
-            m_Renderer->PrepareForUIRendering();
+            renderer->PrepareForUIRendering();
             
             // Render UI
-            m_UI->Render();
+            ui->Render();
             
             // Restore OpenGL state for next frame
-            m_Renderer->RestoreAfterUIRendering();
+            renderer->RestoreAfterUIRendering();
         }
             
-        m_Renderer->EndFrame();
+        renderer->EndFrame();
     }
 }
 
 void Application::Shutdown()
 {
-    if (m_UI)
-        m_UI->Shutdown();
+    if (ui)
+        ui->Shutdown();
 
-    if (m_Renderer)
-        m_Renderer->Shutdown();
+    if (renderer)
+        renderer->Shutdown();
 
-    if (m_Window)
+    if (window)
     {
-        glfwDestroyWindow(m_Window);
-        m_Window = nullptr;
+        glfwDestroyWindow(window);
+        window = nullptr;
     }
 
     glfwTerminate();
-    s_Instance = nullptr;
+    instance = nullptr;
 }

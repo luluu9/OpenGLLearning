@@ -16,7 +16,7 @@ Scene::~Scene() = default;
 
 void Scene::Update(float deltaTime)
 {
-    for (auto& object : m_Objects)
+    for (auto& object : objects)
     {
         if (object)
             object->Update(deltaTime);
@@ -28,8 +28,8 @@ SceneObject* Scene::AddObject(std::unique_ptr<SceneObject> object)
     if (!object)
         return nullptr;
         
-    m_Objects.push_back(std::move(object));
-    return m_Objects.back().get();
+    objects.push_back(std::move(object));
+    return objects.back().get();
 }
 
 void Scene::RemoveObject(SceneObject* object)
@@ -37,23 +37,23 @@ void Scene::RemoveObject(SceneObject* object)
     if (!object)
         return;
         
-    auto it = std::find_if(m_Objects.begin(), m_Objects.end(),
+    auto it = std::find_if(objects.begin(), objects.end(),
                          [object](const std::unique_ptr<SceneObject>& obj) {
                              return obj.get() == object;
                          });
                          
-    if (it != m_Objects.end())
-        m_Objects.erase(it);
+    if (it != objects.end())
+        objects.erase(it);
 }
 
 void Scene::ClearObjects()
 {
-    m_Objects.clear();
+    objects.clear();
 }
 
 void Scene::ClearLights()
 {
-    m_Lights.clear();
+    lights.clear();
 }
 
 int Scene::AddDefaultLight()
@@ -63,26 +63,26 @@ int Scene::AddDefaultLight()
     defaultLight->color = glm::vec3(1.0f, 1.0f, 1.0f);
     defaultLight->intensity = 2.0f;
     
-    m_Lights.push_back(std::move(*defaultLight));
-    return static_cast<int>(m_Lights.size() - 1);
+    lights.push_back(std::move(*defaultLight));
+    return static_cast<int>(lights.size() - 1);
 }
 
 int Scene::AddLight(const Light& light)
 {
-    m_Lights.push_back(light);
-    return static_cast<int>(m_Lights.size() - 1);
+    lights.push_back(light);
+    return static_cast<int>(lights.size() - 1);
 }
 
 void Scene::RemoveLight(int index)
 {
-    if (index >= 0 && index < m_Lights.size())
-        m_Lights.erase(m_Lights.begin() + index);
+    if (index >= 0 && index < lights.size())
+        lights.erase(lights.begin() + index);
 }
 
 Light* Scene::GetLight(int index)
 {
-    if (index >= 0 && index < m_Lights.size())
-        return &m_Lights[index];
+    if (index >= 0 && index < lights.size())
+        return &lights[index];
         
     return nullptr;
 }
@@ -95,7 +95,7 @@ bool Scene::SaveToFile(const std::string& filepath)
         
         // Save lights
         json lightsJson = json::array();
-        for (const auto& light : m_Lights)
+        for (const auto& light : lights)
         {
             json lightJson;
             lightJson["position"] = {light.position.x, light.position.y, light.position.z};
@@ -108,7 +108,7 @@ bool Scene::SaveToFile(const std::string& filepath)
         
         // Save objects
         json objectsJson = json::array();
-        for (const auto& object : m_Objects)
+        for (const auto& object : objects)
         {
             if (!object)
                 continue;
@@ -182,8 +182,8 @@ bool Scene::LoadFromFile(const std::string& filepath)
         file >> sceneJson;
         
         // Clear existing scene data
-        m_Objects.clear();
-        m_Lights.clear();
+        objects.clear();
+        lights.clear();
         
         // Load lights
         if (sceneJson.contains("lights") && sceneJson["lights"].is_array())
@@ -211,18 +211,18 @@ bool Scene::LoadFromFile(const std::string& filepath)
                     light.intensity = lightJson["intensity"];
                 }
                 
-                m_Lights.push_back(light);
+                lights.push_back(light);
             }
         }
         
         // If no lights were loaded, add a default light
-        if (m_Lights.empty())
+        if (lights.empty())
         {
             Light defaultLight;
             defaultLight.position = glm::vec3(5.0f, 5.0f, 5.0f);
             defaultLight.color = glm::vec3(1.0f, 1.0f, 1.0f);
             defaultLight.intensity = 1.0f;
-            m_Lights.push_back(defaultLight);
+            lights.push_back(defaultLight);
         }
         
         // Load objects
@@ -328,7 +328,7 @@ bool Scene::LoadFromFile(const std::string& filepath)
                 }
                 
                 // Add object to scene
-                m_Objects.push_back(std::move(object));
+                objects.push_back(std::move(object));
             }
         }
         

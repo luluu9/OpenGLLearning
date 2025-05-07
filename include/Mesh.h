@@ -21,16 +21,16 @@ public:
     void Draw() const;
     
     // Accessors
-    const std::vector<Vertex>& GetVertices() const { return m_Vertices; }
-    const std::vector<unsigned int>& GetIndices() const { return m_Indices; }
+    const std::vector<Vertex>& GetVertices() const { return vertices; }
+    const std::vector<unsigned int>& GetIndices() const { return indices; }
     
 private:
-    std::vector<Vertex> m_Vertices;
-    std::vector<unsigned int> m_Indices;
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
     
-    unsigned int m_VAO = 0;
-    unsigned int m_VBO = 0;
-    unsigned int m_EBO = 0;
+    unsigned int VAO = 0;
+    unsigned int VBO = 0;
+    unsigned int EBO = 0;
     
     void SetupMesh();
     void DeleteBuffers();

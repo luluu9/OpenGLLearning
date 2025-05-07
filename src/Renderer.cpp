@@ -33,17 +33,17 @@ void Renderer::Shutdown()
 void Renderer::BeginFrame()
 {
     // Clear the screen
-    glClearColor(m_ClearColor.r, m_ClearColor.g, m_ClearColor.b, m_ClearColor.a);
+    glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Set depth test state
-    if (m_DepthTestEnabled)
+    if (depthTestEnabled)
         glEnable(GL_DEPTH_TEST);
     else
         glDisable(GL_DEPTH_TEST);
         
     // Set render mode
-    switch (m_RenderMode)
+    switch (renderMode)
     {
     case RenderMode::Wireframe:
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -80,7 +80,7 @@ void Renderer::Render(Scene* scene, Camera* camera)
         shader->Use();
         
         // Update lighting model in shader
-        shader->SetInt("lightingModel", static_cast<int>(m_LightingModel));
+        shader->SetInt("lightingModel", static_cast<int>(lightingModel));
         
         // Update lighting parameters
         for (const auto& light : scene->GetLights())
@@ -137,13 +137,13 @@ void Renderer::PrepareForUIRendering()
 void Renderer::RestoreAfterUIRendering()
 {
     // Restore depth test state
-    if (m_DepthTestEnabled)
+    if (depthTestEnabled)
         glEnable(GL_DEPTH_TEST);
     else
         glDisable(GL_DEPTH_TEST);
     
     // Restore polygon mode
-    switch (m_RenderMode)
+    switch (renderMode)
     {
     case RenderMode::Wireframe:
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

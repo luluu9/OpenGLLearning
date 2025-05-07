@@ -41,8 +41,8 @@ bool Shader::LoadFromFile(const std::string& vertexPath, const std::string& frag
         fragmentCode = fShaderStream.str();
     }
     catch (std::ifstream::failure& e) {
-        m_CompilationLog = "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " + std::string(e.what());
-        std::cerr << m_CompilationLog << std::endl;
+        compilationLog = "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " + std::string(e.what());
+        std::cerr << compilationLog << std::endl;
         return false;
     }
     
@@ -52,7 +52,7 @@ bool Shader::LoadFromFile(const std::string& vertexPath, const std::string& frag
 bool Shader::LoadFromSource(const std::string& vertexSource, const std::string& fragmentSource)
 {
     // Delete the previous shader if one exists
-    if (m_ID != 0)
+    if (id != 0)
         Delete();
         
     return CompileShader(vertexSource, fragmentSource);
@@ -60,22 +60,22 @@ bool Shader::LoadFromSource(const std::string& vertexSource, const std::string& 
 
 void Shader::Use() const
 {
-    glUseProgram(m_ID);
+    glUseProgram(id);
 }
 
 void Shader::Delete()
 {
-    if (m_ID != 0)
+    if (id != 0)
     {
-        glDeleteProgram(m_ID);
-        m_ID = 0;
+        glDeleteProgram(id);
+        id = 0;
     }
-    m_UniformLocationCache.clear();
+    uniformLocationCache.clear();
 }
 
 bool Shader::CompileShader(const std::string& vertexSource, const std::string& fragmentSource)
 {
-    m_CompilationLog.clear();
+    compilationLog.clear();
     unsigned int vertexShader = CompileShaderModule(GL_VERTEX_SHADER, vertexSource);
     if (vertexShader == 0)
         return false;
@@ -88,24 +88,24 @@ bool Shader::CompileShader(const std::string& vertexSource, const std::string& f
     }
     
     // Create shader program
-    m_ID = glCreateProgram();
-    glAttachShader(m_ID, vertexShader);
-    glAttachShader(m_ID, fragmentShader);
-    glLinkProgram(m_ID);
+    id = glCreateProgram();
+    glAttachShader(id, vertexShader);
+    glAttachShader(id, fragmentShader);
+    glLinkProgram(id);
     
     // Check for linking errors
     int success;
     char infoLog[512];
-    glGetProgramiv(m_ID, GL_LINK_STATUS, &success);
+    glGetProgramiv(id, GL_LINK_STATUS, &success);
     if (!success)
     {
-        glGetProgramInfoLog(m_ID, 512, NULL, infoLog);
-        m_CompilationLog += "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" + std::string(infoLog);
-        std::cerr << m_CompilationLog << std::endl;
+        glGetProgramInfoLog(id, 512, NULL, infoLog);
+        compilationLog += "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" + std::string(infoLog);
+        std::cerr << compilationLog << std::endl;
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
-        glDeleteProgram(m_ID);
-        m_ID = 0;
+        glDeleteProgram(id);
+        id = 0;
         return false;
     }
     
@@ -130,10 +130,10 @@ unsigned int Shader::CompileShaderModule(unsigned int type, const std::string& s
     if (!success)
     {
         glGetShaderInfoLog(shader, 512, NULL, infoLog);
-        m_CompilationLog += "ERROR::SHADER::" + 
+        compilationLog += "ERROR::SHADER::" + 
             std::string(type == GL_VERTEX_SHADER ? "VERTEX" : "FRAGMENT") + 
             "::COMPILATION_FAILED\n" + std::string(infoLog);
-        std::cerr << m_CompilationLog << std::endl;
+        std::cerr << compilationLog << std::endl;
         glDeleteShader(shader);
         return 0;
     }
@@ -144,12 +144,12 @@ unsigned int Shader::CompileShaderModule(unsigned int type, const std::string& s
 int Shader::GetUniformLocation(const std::string& name) const
 {
     // Check if the uniform location is already in the cache
-    if (m_UniformLocationCache.find(name) != m_UniformLocationCache.end())
-        return m_UniformLocationCache[name];
+    if (uniformLocationCache.find(name) != uniformLocationCache.end())
+        return uniformLocationCache[name];
         
     // Get the location from OpenGL
-    int location = glGetUniformLocation(m_ID, name.c_str());
-    m_UniformLocationCache[name] = location;
+    int location = glGetUniformLocation(id, name.c_str());
+    uniformLocationCache[name] = location;
     
     return location;
 }

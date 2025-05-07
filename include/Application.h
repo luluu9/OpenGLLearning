@@ -16,32 +16,32 @@ public:
     bool Initialize();
     void Shutdown();
 
-    static Application* GetInstance() { return s_Instance; }
+    static Application* GetInstance() { return instance; }
     
-    GLFWwindow* GetWindow() const { return m_Window; }
-    Renderer* GetRenderer() const { return m_Renderer.get(); }
-    Scene* GetScene() const { return m_Scene.get(); }
-    UI* GetUI() const { return m_UI.get(); }
-    Camera* GetCamera() const { return m_Camera.get(); }
+    GLFWwindow* GetWindow() const { return window; }
+    Renderer* GetRenderer() const { return renderer.get(); }
+    Scene* GetScene() const { return scene.get(); }
+    UI* GetUI() const { return ui.get(); }
+    Camera* GetCamera() const { return camera.get(); }
     
 private:
     void ProcessInput();
     void Update();
     void Render();
     
-    static Application* s_Instance;
+    static Application* instance;
     
-    std::string m_Title;
-    int m_Width;
-    int m_Height;
-    GLFWwindow* m_Window = nullptr;
+    std::string title;
+    int width;
+    int height;
+    GLFWwindow* window = nullptr;
     
-    std::unique_ptr<Renderer> m_Renderer;
-    std::unique_ptr<Scene> m_Scene;
-    std::unique_ptr<UI> m_UI;
-    std::unique_ptr<Camera> m_Camera;
+    std::unique_ptr<Renderer> renderer;
+    std::unique_ptr<Scene> scene;
+    std::unique_ptr<UI> ui;
+    std::unique_ptr<Camera> camera;
     
-    float m_LastFrameTime = 0.0f;
-    float m_DeltaTime = 0.0f;
-    bool m_Running = false;
+    float lastFrameTime = 0.0f;
+    float deltaTime = 0.0f;
+    bool running = false;
 };

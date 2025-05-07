@@ -26,8 +26,8 @@ public:
     void ClearObjects();
     
     // Accessor methods
-    const std::vector<std::unique_ptr<SceneObject>>& GetObjects() const { return m_Objects; }
-    const std::vector<Light>& GetLights() const { return m_Lights; }
+    const std::vector<std::unique_ptr<SceneObject>>& GetObjects() const { return objects; }
+    const std::vector<Light>& GetLights() const { return lights; }
     
     // Light management
     void ClearLights();
@@ -41,6 +41,6 @@ public:
     bool LoadFromFile(const std::string& filepath);
     
 private:
-    std::vector<std::unique_ptr<SceneObject>> m_Objects;
-    std::vector<Light> m_Lights;
+    std::vector<std::unique_ptr<SceneObject>> objects;
+    std::vector<Light> lights;
 };

@@ -17,62 +17,62 @@ public:
     glm::mat4 GetViewMatrix() const;
     glm::mat4 GetProjectionMatrix() const;
 
-    void SetPosition(const glm::vec3& position) { m_Position = position; UpdateViewMatrix(); }
-    glm::vec3 GetPosition() const { return m_Position; }
+    void SetPosition(const glm::vec3& newPosition) { position = newPosition; UpdateViewMatrix(); }
+    glm::vec3 GetPosition() const { return position; }
 
-    void SetFOV(float fov) { m_FOV = fov; UpdateProjectionMatrix(); }
-    float GetFOV() const { return m_FOV; }
+    void SetFOV(float newFov) { fov = newFov; UpdateProjectionMatrix(); }
+    float GetFOV() const { return fov; }
 
-    void SetAspectRatio(float aspectRatio) { m_AspectRatio = aspectRatio; UpdateProjectionMatrix(); }
-    float GetAspectRatio() const { return m_AspectRatio; }
+    void SetAspectRatio(float newAspectRatio) { aspectRatio = newAspectRatio; UpdateProjectionMatrix(); }
+    float GetAspectRatio() const { return aspectRatio; }
 
-    void SetNearPlane(float nearPlane) { m_NearPlane = nearPlane; UpdateProjectionMatrix(); }
-    float GetNearPlane() const { return m_NearPlane; }
+    void SetNearPlane(float newNearPlane) { nearPlane = newNearPlane; UpdateProjectionMatrix(); }
+    float GetNearPlane() const { return nearPlane; }
 
-    void SetFarPlane(float farPlane) { m_FarPlane = farPlane; UpdateProjectionMatrix(); }
-    float GetFarPlane() const { return m_FarPlane; }
+    void SetFarPlane(float newFarPlane) { farPlane = newFarPlane; UpdateProjectionMatrix(); }
+    float GetFarPlane() const { return farPlane; }
 
-    void SetMovementSpeed(float speed) { m_MovementSpeed = speed; }
-    float GetMovementSpeed() const { return m_MovementSpeed; }
+    void SetMovementSpeed(float speed) { movementSpeed = speed; }
+    float GetMovementSpeed() const { return movementSpeed; }
 
-    void SetMouseSensitivity(float sensitivity) { m_MouseSensitivity = sensitivity; }
-    float GetMouseSensitivity() const { return m_MouseSensitivity; }
+    void SetMouseSensitivity(float sensitivity) { mouseSensitivity = sensitivity; }
+    float GetMouseSensitivity() const { return mouseSensitivity; }
 
-    void SetIgnoreScrollInput(bool ignore) { m_IgnoreScrollInput = ignore; }
-    bool GetIgnoreScrollInput() const { return m_IgnoreScrollInput; }
+    void SetIgnoreScrollInput(bool ignore) { ignoreScrollInput = ignore; }
+    bool GetIgnoreScrollInput() const { return ignoreScrollInput; }
 
 private:
     void UpdateViewMatrix();
     void UpdateProjectionMatrix();
 
     // Camera position and orientation
-    glm::vec3 m_Position = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 m_Front = glm::vec3(0.0f, 0.0f, -1.0f);
-    glm::vec3 m_Up = glm::vec3(0.0f, 1.0f, 0.0f);
-    glm::vec3 m_Right = glm::vec3(1.0f, 0.0f, 0.0f);
-    glm::vec3 m_WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 front = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::vec3 right = glm::vec3(1.0f, 0.0f, 0.0f);
+    glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
     // Euler angles
-    float m_Yaw = -90.0f;
-    float m_Pitch = 0.0f;
+    float yaw = -90.0f;
+    float pitch = 0.0f;
 
     // Projection parameters
-    float m_FOV;
-    float m_AspectRatio;
-    float m_NearPlane;
-    float m_FarPlane;
+    float fov;
+    float aspectRatio;
+    float nearPlane;
+    float farPlane;
 
     // Camera options
-    float m_MovementSpeed = 2.5f;
-    float m_MouseSensitivity = 0.1f;
-    bool m_IgnoreScrollInput = false;
+    float movementSpeed = 2.5f;
+    float mouseSensitivity = 0.1f;
+    bool ignoreScrollInput = false;
 
     // Cached matrices
-    glm::mat4 m_ViewMatrix = glm::mat4(1.0f);
-    glm::mat4 m_ProjectionMatrix = glm::mat4(1.0f);
+    glm::mat4 viewMatrix = glm::mat4(1.0f);
+    glm::mat4 projectionMatrix = glm::mat4(1.0f);
 
     // Input tracking
-    bool m_FirstMouse = true;
-    float m_LastX = 0.0f;
-    float m_LastY = 0.0f;
+    bool firstMouse = true;
+    float lastX = 0.0f;
+    float lastY = 0.0f;
 };

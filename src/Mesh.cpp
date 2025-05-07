@@ -10,32 +10,32 @@ Mesh::~Mesh()
     DeleteBuffers();
 }
 
-void Mesh::SetVertices(const std::vector<Vertex>& vertices)
+void Mesh::SetVertices(const std::vector<Vertex>& newVertices)
 {
-    m_Vertices = vertices;
+    vertices = newVertices;
     SetupMesh();
 }
 
-void Mesh::SetIndices(const std::vector<unsigned int>& indices)
+void Mesh::SetIndices(const std::vector<unsigned int>& newIndices)
 {
-    m_Indices = indices;
+    indices = newIndices;
     SetupMesh();
 }
 
 void Mesh::Draw() const
 {
-    if (m_VAO == 0 || m_Vertices.empty())
+    if (VAO == 0 || vertices.empty())
         return;
     
-    glBindVertexArray(m_VAO);
+    glBindVertexArray(VAO);
     
-    if (!m_Indices.empty())
+    if (!indices.empty())
     {
-        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_Indices.size()), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
     }
     else
     {
-        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_Vertices.size()));
+        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertices.size()));
     }
     
     glBindVertexArray(0);
@@ -47,25 +47,25 @@ void Mesh::SetupMesh()
     DeleteBuffers();
     
     // Only setup if we have vertices
-    if (m_Vertices.empty())
+    if (vertices.empty())
         return;
     
     // Create buffers/arrays
-    glGenVertexArrays(1, &m_VAO);
-    glGenBuffers(1, &m_VBO);
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
     
-    glBindVertexArray(m_VAO);
+    glBindVertexArray(VAO);
     
     // Load vertex data
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferData(GL_ARRAY_BUFFER, m_Vertices.size() * sizeof(Vertex), &m_Vertices[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
     
     // Load index data if we have indices
-    if (!m_Indices.empty())
+    if (!indices.empty())
     {
-        glGenBuffers(1, &m_EBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(unsigned int), &m_Indices[0], GL_STATIC_DRAW);
+        glGenBuffers(1, &EBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
     }
     
     // Set vertex attribute pointers
@@ -87,21 +87,21 @@ void Mesh::SetupMesh()
 
 void Mesh::DeleteBuffers()
 {
-    if (m_EBO != 0)
+    if (EBO != 0)
     {
-        glDeleteBuffers(1, &m_EBO);
-        m_EBO = 0;
+        glDeleteBuffers(1, &EBO);
+        EBO = 0;
     }
     
-    if (m_VBO != 0)
+    if (VBO != 0)
     {
-        glDeleteBuffers(1, &m_VBO);
-        m_VBO = 0;
+        glDeleteBuffers(1, &VBO);
+        VBO = 0;
     }
     
-    if (m_VAO != 0)
+    if (VAO != 0)
     {
-        glDeleteVertexArrays(1, &m_VAO);
-        m_VAO = 0;
+        glDeleteVertexArrays(1, &VAO);
+        VAO = 0;
     }
 }

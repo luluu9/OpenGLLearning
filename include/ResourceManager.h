@@ -28,8 +28,8 @@ private:
     ResourceManager& operator=(ResourceManager&&) = delete;
     
     // Shader cache
-    std::unordered_map<std::string, std::unique_ptr<Shader>> m_Shaders;
+    std::unordered_map<std::string, std::unique_ptr<Shader>> shaders;
     
     // Singleton instance
-    static ResourceManager* s_Instance;
+    static ResourceManager* instance;
 };

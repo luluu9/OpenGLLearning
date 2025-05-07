@@ -28,42 +28,42 @@ public:
     void SetRotation(const glm::vec3& rotation);
     void SetScale(const glm::vec3& scale);
     
-    glm::vec3 GetPosition() const { return m_Position; }
-    glm::vec3 GetRotation() const { return m_Rotation; }
-    glm::vec3 GetScale() const { return m_Scale; }
+    glm::vec3 GetPosition() const { return position; }
+    glm::vec3 GetRotation() const { return rotation; }
+    glm::vec3 GetScale() const { return scale; }
     
     glm::mat4 GetTransform();
     void SetTransform(const glm::mat4& transform);
     
     // Getters and setters
-    const std::string& GetName() const { return m_Name; }
-    void SetName(const std::string& name) { m_Name = name; }
+    const std::string& GetName() const { return name; }
+    void SetName(const std::string& newName) { name = newName; }
     
-    bool IsVisible() const { return m_Visible; }
-    void SetVisible(bool visible) { m_Visible = visible; }
+    bool IsVisible() const { return visible; }
+    void SetVisible(bool isVisible) { visible = isVisible; }
     
-    Material& GetMaterial() { return m_Material; }
-    void SetMaterial(const Material& material) { m_Material = material; }
+    Material& GetMaterial() { return material; }
+    void SetMaterial(const Material& newMaterial) { material = newMaterial; }
     
-    Mesh* GetMesh() const { return m_Mesh.get(); }
-    void SetMesh(std::unique_ptr<Mesh> mesh) { m_Mesh = std::move(mesh); }
+    Mesh* GetMesh() const { return mesh.get(); }
+    void SetMesh(std::unique_ptr<Mesh> newMesh) { mesh = std::move(newMesh); }
     
-    Shader* GetShader() const { return m_Shader; }
-    void SetShader(Shader* shader) { m_Shader = shader; }
+    Shader* GetShader() const { return shader; }
+    void SetShader(Shader* newShader) { shader = newShader; }
     
 protected:
-    std::string m_Name;
-    bool m_Visible = true;
+    std::string name;
+    bool visible = true;
     
     // Transform properties
-    glm::vec3 m_Position = glm::vec3(0.0f);
-    glm::vec3 m_Rotation = glm::vec3(0.0f);
-    glm::vec3 m_Scale = glm::vec3(1.0f);
-    glm::mat4 m_Transform = glm::mat4(1.0f);
-    bool m_TransformDirty = false;
+    glm::vec3 position = glm::vec3(0.0f);
+    glm::vec3 rotation = glm::vec3(0.0f);
+    glm::vec3 scale = glm::vec3(1.0f);
+    glm::mat4 transform = glm::mat4(1.0f);
+    bool transformDirty = false;
     
     // Rendering properties
-    Material m_Material;
-    std::unique_ptr<Mesh> m_Mesh;
-    Shader* m_Shader = nullptr; // Not owned
+    Material material;
+    std::unique_ptr<Mesh> mesh;
+    Shader* shader = nullptr; // Not owned
 };

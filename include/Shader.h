@@ -16,7 +16,7 @@ public:
     void Use() const;
     void Delete();
     
-    unsigned int GetID() const { return m_ID; }
+    unsigned int GetID() const { return id; }
     
     // Uniform setters
     void SetBool(const std::string& name, bool value) const;
@@ -33,12 +33,12 @@ public:
     int GetUniformLocation(const std::string& name) const;
     
     // Get shader compilation log
-    std::string GetCompilationLog() const { return m_CompilationLog; }
+    std::string GetCompilationLog() const { return compilationLog; }
     
 private:
-    unsigned int m_ID = 0;
-    mutable std::unordered_map<std::string, int> m_UniformLocationCache;
-    std::string m_CompilationLog;
+    unsigned int id = 0;
+    mutable std::unordered_map<std::string, int> uniformLocationCache;
+    std::string compilationLog;
     
     bool CompileShader(const std::string& vertexSource, const std::string& fragmentSource);
     unsigned int CompileShaderModule(unsigned int type, const std::string& source);

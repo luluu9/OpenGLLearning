@@ -27,12 +27,12 @@ UI::~UI()
         Shutdown();
 }
 
-bool UI::Initialize(GLFWwindow* window)
+bool UI::Initialize(GLFWwindow* newWindow)
 {
-    if (!window)
+    if (!newWindow)
         return false;
         
-    m_Window = window;
+    window = newWindow;
     
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -67,41 +67,41 @@ void UI::Update()
     
     // Calculate frame time
     float currentTime = static_cast<float>(glfwGetTime());
-    float deltaTime = currentTime - m_LastFrameTime;
-    m_LastFrameTime = currentTime;
+    float deltaTime = currentTime - lastFrameTime;
+    lastFrameTime = currentTime;
     
     // Store frame time for performance monitoring
-    m_FrameTimes[m_FrameTimeIndex] = deltaTime;
-    m_FrameTimeIndex = (m_FrameTimeIndex + 1) % IM_ARRAYSIZE(m_FrameTimes);
+    frameTimes[frameTimeIndex] = deltaTime;
+    frameTimeIndex = (frameTimeIndex + 1) % IM_ARRAYSIZE(frameTimes);
     
     // Calculate average frame time
-    m_FrameTimeAccumulator += deltaTime;
-    m_FrameCount++;
+    frameTimeAccumulator += deltaTime;
+    frameCount++;
     
-    if (m_FrameTimeAccumulator >= 0.5f) // Update average every half second
+    if (frameTimeAccumulator >= 0.5f) // Update average every half second
     {
-        m_AverageFrameTime = m_FrameTimeAccumulator / m_FrameCount;
-        m_FrameTimeAccumulator = 0.0f;
-        m_FrameCount = 0;
+        averageFrameTime = frameTimeAccumulator / frameCount;
+        frameTimeAccumulator = 0.0f;
+        frameCount = 0;
     }
 
     // Render ImGui components
     RenderMainMenuBar();
     
-    if (m_ShowShaderEditor)
+    if (showShaderEditor)
         RenderShaderEditor();
         
-    if (m_ShowObjectProperties)
+    if (showObjectProperties)
         RenderObjectProperties();
         
-    if (m_ShowSceneSettings)
+    if (showSceneSettings)
         RenderSceneSettings();
         
-    if (m_ShowPerformanceOverlay)
+    if (showPerformanceOverlay)
         RenderPerformanceOverlay();
         
-    if (m_ShowDemoWindow)
-        ImGui::ShowDemoWindow(&m_ShowDemoWindow);
+    if (showDemoWindow)
+        ImGui::ShowDemoWindow(&showDemoWindow);
 }
 
 void UI::Render()
@@ -125,7 +125,7 @@ void UI::RenderMainMenuBar()
                     app->GetScene()->ClearLights();
                     app->GetScene()->AddDefaultLight();
                     
-                    m_SelectedObject = nullptr;
+                    selectedObject = nullptr;
                 }
             }
             
@@ -133,10 +133,10 @@ void UI::RenderMainMenuBar()
             {
                 // Show file dialog to open scene
                 std::string filepath = OpenFileDialog("JSON Scene Files\0*.json\0All Files\0*.*\0");
-                if (!filepath.empty() && m_OnSceneLoad)
+                if (!filepath.empty() && onSceneLoad)
                 {
-                    m_OnSceneLoad(filepath);
-                    m_SelectedObject = nullptr; // Reset selected object
+                    onSceneLoad(filepath);
+                    selectedObject = nullptr; // Reset selected object
                 }
             }
             
@@ -144,9 +144,9 @@ void UI::RenderMainMenuBar()
             {
                 // Show file dialog to save scene
                 std::string filepath = SaveFileDialog("JSON Scene Files\0*.json\0All Files\0*.*\0");
-                if (!filepath.empty() && m_OnSceneSave)
+                if (!filepath.empty() && onSceneSave)
                 {
-                    m_OnSceneSave(filepath);
+                    onSceneSave(filepath);
                 }
             }
             
@@ -154,7 +154,7 @@ void UI::RenderMainMenuBar()
             
             if (ImGui::MenuItem("Exit", "Alt+F4"))
             {
-                glfwSetWindowShouldClose(m_Window, GLFW_TRUE);
+                glfwSetWindowShouldClose(window, GLFW_TRUE);
             }
             
             ImGui::EndMenu();
@@ -162,27 +162,27 @@ void UI::RenderMainMenuBar()
         
         if (ImGui::BeginMenu("Edit"))
         {
-            if (ImGui::MenuItem("Shader Editor", nullptr, m_ShowShaderEditor))
-                m_ShowShaderEditor = !m_ShowShaderEditor;
+            if (ImGui::MenuItem("Shader Editor", nullptr, showShaderEditor))
+                showShaderEditor = !showShaderEditor;
                 
             ImGui::EndMenu();
         }
         
         if (ImGui::BeginMenu("View"))
         {
-            if (ImGui::MenuItem("Object Properties", nullptr, m_ShowObjectProperties))
-                m_ShowObjectProperties = !m_ShowObjectProperties;
+            if (ImGui::MenuItem("Object Properties", nullptr, showObjectProperties))
+                showObjectProperties = !showObjectProperties;
                 
-            if (ImGui::MenuItem("Scene Settings", nullptr, m_ShowSceneSettings))
-                m_ShowSceneSettings = !m_ShowSceneSettings;
+            if (ImGui::MenuItem("Scene Settings", nullptr, showSceneSettings))
+                showSceneSettings = !showSceneSettings;
                 
-            if (ImGui::MenuItem("Performance Overlay", nullptr, m_ShowPerformanceOverlay))
-                m_ShowPerformanceOverlay = !m_ShowPerformanceOverlay;
+            if (ImGui::MenuItem("Performance Overlay", nullptr, showPerformanceOverlay))
+                showPerformanceOverlay = !showPerformanceOverlay;
                 
             ImGui::Separator();
             
-            if (ImGui::MenuItem("ImGui Demo", nullptr, m_ShowDemoWindow))
-                m_ShowDemoWindow = !m_ShowDemoWindow;
+            if (ImGui::MenuItem("ImGui Demo", nullptr, showDemoWindow))
+                showDemoWindow = !showDemoWindow;
                 
             ImGui::EndMenu();
         }
@@ -191,32 +191,32 @@ void UI::RenderMainMenuBar()
         {
             if (ImGui::MenuItem("Add Cube"))
             {
-                if (m_OnAddObject)
-                    m_OnAddObject("Cube");
+                if (onAddObject)
+                    onAddObject("Cube");
             }
             
             if (ImGui::MenuItem("Add Sphere"))
             {
-                if (m_OnAddObject)
-                    m_OnAddObject("Sphere");
+                if (onAddObject)
+                    onAddObject("Sphere");
             }
             
             if (ImGui::MenuItem("Add Plane"))
             {
-                if (m_OnAddObject)
-                    m_OnAddObject("Plane");
+                if (onAddObject)
+                    onAddObject("Plane");
             }
             
             if (ImGui::MenuItem("Add Cylinder"))
             {
-                if (m_OnAddObject)
-                    m_OnAddObject("Cylinder");
+                if (onAddObject)
+                    onAddObject("Cylinder");
             }
             
             if (ImGui::MenuItem("Add Cone"))
             {
-                if (m_OnAddObject)
-                    m_OnAddObject("Cone");
+                if (onAddObject)
+                    onAddObject("Cone");
             }
             
             ImGui::EndMenu();
@@ -277,7 +277,7 @@ void UI::RenderShaderEditor()
 {
     // Set shader editor position at top-right corner
     static bool firstShown = true;
-    if (firstShown && m_ShowShaderEditor)
+    if (firstShown && showShaderEditor)
     {
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImVec2 workPos = viewport->WorkPos;
@@ -293,10 +293,10 @@ void UI::RenderShaderEditor()
         firstShown = false;
     }
     
-    ImGui::Begin("Shader Editor", &m_ShowShaderEditor);
+    ImGui::Begin("Shader Editor", &showShaderEditor);
     
     // Show a notice if no object is selected
-    if (!m_SelectedObject)
+    if (!selectedObject)
     {
         ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.5f, 1.0f), 
             "No object selected. Please select an object in the Object Properties panel.");
@@ -304,15 +304,15 @@ void UI::RenderShaderEditor()
     }
     
     // Show compilation status messages
-    if (!m_CompilationMessage.empty())
+    if (!compilationMessage.empty())
     {
-        if (m_CompilationSuccessful)
+        if (compilationSuccessful)
         {
-            ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "%s", m_CompilationMessage.c_str());
+            ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "%s", compilationMessage.c_str());
         }
         else
         {
-            ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%s", m_CompilationMessage.c_str());
+            ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%s", compilationMessage.c_str());
         }
         ImGui::Separator();
     }
@@ -326,7 +326,7 @@ void UI::RenderShaderEditor()
         {
             std::stringstream buffer;
             buffer << vertFile.rdbuf();
-            m_VertexShaderSource = buffer.str();
+            vertexShaderSource = buffer.str();
             vertFile.close();
         }
         
@@ -335,7 +335,7 @@ void UI::RenderShaderEditor()
         {
             std::stringstream buffer;
             buffer << fragFile.rdbuf();
-            m_FragmentShaderSource = buffer.str();
+            fragmentShaderSource = buffer.str();
             fragFile.close();
         }
         
@@ -349,8 +349,8 @@ void UI::RenderShaderEditor()
     ImGui::Text("Vertex Shader");
     // Use InputTextMultiline with a callback that properly handles std::string
     if (ImGui::InputTextMultiline("##VertexShader", 
-                                 const_cast<char*>(m_VertexShaderSource.data()), 
-                                 m_VertexShaderSource.capacity() + 1, 
+                                 const_cast<char*>(vertexShaderSource.data()), 
+                                 vertexShaderSource.capacity() + 1, 
                                  size, 
                                  ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_CallbackResize,
                                  [](ImGuiInputTextCallbackData* data) -> int {
@@ -361,16 +361,16 @@ void UI::RenderShaderEditor()
                                          data->Buf = const_cast<char*>(str->c_str());
                                      }
                                      return 0;
-                                 }, &m_VertexShaderSource))
+                                 }, &vertexShaderSource))
     {
-        m_ShaderModified = true;
+        shaderModified = true;
     }
     
     ImGui::Text("Fragment Shader");
     // Use InputTextMultiline with a callback that properly handles std::string
     if (ImGui::InputTextMultiline("##FragmentShader", 
-                                 const_cast<char*>(m_FragmentShaderSource.data()), 
-                                 m_FragmentShaderSource.capacity() + 1, 
+                                 const_cast<char*>(fragmentShaderSource.data()), 
+                                 fragmentShaderSource.capacity() + 1, 
                                  size, 
                                  ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_CallbackResize,
                                  [](ImGuiInputTextCallbackData* data) -> int {
@@ -381,53 +381,53 @@ void UI::RenderShaderEditor()
                                          data->Buf = const_cast<char*>(str->c_str());
                                      }
                                      return 0;
-                                 }, &m_FragmentShaderSource))
+                                 }, &fragmentShaderSource))
     {
-        m_ShaderModified = true;
+        shaderModified = true;
     }
     
     // Show status indicator if the shader has been modified
-    if (m_ShaderModified)
+    if (shaderModified)
     {
         ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.0f, 1.0f), "Shader modified - Click 'Compile Shader' to apply changes");
     }
     
     // Compile button (disabled if no object is selected)
-    if (!m_SelectedObject)
+    if (!selectedObject)
     {
         ImGui::BeginDisabled();
     }
     
     if (ImGui::Button("Compile Shader") || ImGui::IsKeyPressed(ImGuiKey_F5))
     {
-        if (m_OnCompileShader && m_SelectedObject)
+        if (onCompileShader && selectedObject)
         {
-            Shader* shader = m_SelectedObject->GetShader();
+            Shader* shader = selectedObject->GetShader();
             if (shader)
             {
                 // Try to compile the shader
-                bool success = m_OnCompileShader(shader, m_VertexShaderSource, m_FragmentShaderSource);
+                bool success = onCompileShader(shader, vertexShaderSource, fragmentShaderSource);
                 if (success)
                 {
-                    m_ShaderModified = false;
-                    m_CompilationSuccessful = true;
-                    m_CompilationMessage = "Shader compiled successfully!";
+                    shaderModified = false;
+                    compilationSuccessful = true;
+                    compilationMessage = "Shader compiled successfully!";
                 }
                 else
                 {
-                    m_CompilationSuccessful = false;
-                    m_CompilationMessage = "Failed to compile shader: " + shader->GetCompilationLog();
+                    compilationSuccessful = false;
+                    compilationMessage = "Failed to compile shader: " + shader->GetCompilationLog();
                 }
             }
             else
             {
-                m_CompilationSuccessful = false;
-                m_CompilationMessage = "Object does not have a shader attached!";
+                compilationSuccessful = false;
+                compilationMessage = "Object does not have a shader attached!";
             }
         }
     }
     
-    if (!m_SelectedObject)
+    if (!selectedObject)
     {
         ImGui::EndDisabled();
     }
@@ -441,7 +441,7 @@ void UI::RenderShaderEditor()
         {
             std::stringstream buffer;
             buffer << vertFile.rdbuf();
-            m_VertexShaderSource = buffer.str();
+            vertexShaderSource = buffer.str();
             vertFile.close();
         }
         
@@ -450,17 +450,17 @@ void UI::RenderShaderEditor()
         {
             std::stringstream buffer;
             buffer << fragFile.rdbuf();
-            m_FragmentShaderSource = buffer.str();
+            fragmentShaderSource = buffer.str();
             fragFile.close();
         }
         
-        m_ShaderModified = true;
+        shaderModified = true;
     }
     
     ImGui::SameLine();
     if (ImGui::Button("Clear Message"))
     {
-        m_CompilationMessage.clear();
+        compilationMessage.clear();
     }
     
     ImGui::End();
@@ -470,7 +470,7 @@ void UI::RenderObjectProperties()
 {
     // Position the Object Properties panel below the Shader Editor, taking up left half
     static bool firstShown = true;
-    if (firstShown && m_ShowObjectProperties)
+    if (firstShown && showObjectProperties)
     {
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImVec2 workPos = viewport->WorkPos;
@@ -491,7 +491,7 @@ void UI::RenderObjectProperties()
         firstShown = false;
     }
     
-    ImGui::Begin("Object Properties", &m_ShowObjectProperties);
+    ImGui::Begin("Object Properties", &showObjectProperties);
     
     Application* app = Application::GetInstance();
     if (!app || !app->GetScene())
@@ -504,14 +504,14 @@ void UI::RenderObjectProperties()
     Scene* scene = app->GetScene();
     
     // Object selection
-    if (ImGui::BeginCombo("Select Object", m_SelectedObject ? m_SelectedObject->GetName().c_str() : "None"))
+    if (ImGui::BeginCombo("Select Object", selectedObject ? selectedObject->GetName().c_str() : "None"))
     {
         for (const auto& object : scene->GetObjects())
         {
-            bool isSelected = (m_SelectedObject == object.get());
+            bool isSelected = (selectedObject == object.get());
             if (ImGui::Selectable(object->GetName().c_str(), isSelected))
             {
-                m_SelectedObject = object.get();
+                selectedObject = object.get();
             }
             
             if (isSelected)
@@ -521,26 +521,26 @@ void UI::RenderObjectProperties()
     }
     
     // Object properties editing
-    if (m_SelectedObject)
+    if (selectedObject)
     {
         ImGui::Separator();
         
         // Edit name
-        std::string objectName = m_SelectedObject->GetName();
+        std::string objectName = selectedObject->GetName();
         static char nameBuffer[256] = "";
         if (objectName.size() < sizeof(nameBuffer)) {
             strcpy(nameBuffer, objectName.c_str());
         }
         if (ImGui::InputText("Name", nameBuffer, sizeof(nameBuffer)))
         {
-            m_SelectedObject->SetName(nameBuffer);
+            selectedObject->SetName(nameBuffer);
         }
         
         // Visibility
-        bool visible = m_SelectedObject->IsVisible();
+        bool visible = selectedObject->IsVisible();
         if (ImGui::Checkbox("Visible", &visible))
         {
-            m_SelectedObject->SetVisible(visible);
+            selectedObject->SetVisible(visible);
         }
         
         ImGui::Separator();
@@ -549,31 +549,31 @@ void UI::RenderObjectProperties()
         if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
         {
             // Position
-            glm::vec3 position = m_SelectedObject->GetPosition();
+            glm::vec3 position = selectedObject->GetPosition();
             if (ImGui::DragFloat3("Position", &position[0], 0.01f))
             {
-                m_SelectedObject->SetPosition(position);
+                selectedObject->SetPosition(position);
             }
             
             // Rotation
-            glm::vec3 rotation = m_SelectedObject->GetRotation();
+            glm::vec3 rotation = selectedObject->GetRotation();
             if (ImGui::DragFloat3("Rotation", &rotation[0], 0.1f))
             {
-                m_SelectedObject->SetRotation(rotation);
+                selectedObject->SetRotation(rotation);
             }
             
             // Scale
-            glm::vec3 scale = m_SelectedObject->GetScale();
+            glm::vec3 scale = selectedObject->GetScale();
             if (ImGui::DragFloat3("Scale", &scale[0], 0.01f, 0.01f, 100.0f))
             {
-                m_SelectedObject->SetScale(scale);
+                selectedObject->SetScale(scale);
             }
         }
         
         // Material properties
         if (ImGui::CollapsingHeader("Material", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            Material& material = m_SelectedObject->GetMaterial();
+            Material& material = selectedObject->GetMaterial();
             
             ImGui::ColorEdit3("Ambient", &material.ambient[0]);
             ImGui::ColorEdit3("Diffuse", &material.diffuse[0]);
@@ -593,7 +593,7 @@ void UI::RenderSceneSettings()
 {
     // Position the Scene Settings panel below the Shader Editor, taking up right half
     static bool firstShown = true;
-    if (firstShown && m_ShowSceneSettings)
+    if (firstShown && showSceneSettings)
     {
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImVec2 workPos = viewport->WorkPos;
@@ -614,7 +614,7 @@ void UI::RenderSceneSettings()
         firstShown = false;
     }
     
-    ImGui::Begin("Scene Settings", &m_ShowSceneSettings);
+    ImGui::Begin("Scene Settings", &showSceneSettings);
     
     Application* app = Application::GetInstance();
     if (!app || !app->GetScene() || !app->GetRenderer())
@@ -701,19 +701,19 @@ void UI::RenderPerformanceOverlay()
     }
     
     ImGui::SetNextWindowBgAlpha(0.35f);
-    if (ImGui::Begin("Performance Overlay", &m_ShowPerformanceOverlay, window_flags))
+    if (ImGui::Begin("Performance Overlay", &showPerformanceOverlay, window_flags))
     {
         ImGui::Text("Performance");
         ImGui::Separator();
-        ImGui::Text("FPS: %.1f", 1.0f / m_AverageFrameTime);
-        ImGui::Text("Frame Time: %.3f ms", m_AverageFrameTime * 1000.0f);
+        ImGui::Text("FPS: %.1f", 1.0f / averageFrameTime);
+        ImGui::Text("Frame Time: %.3f ms", averageFrameTime * 1000.0f);
         
         ImGui::Separator();
         
         ImGui::Text("Frame Time Graph");
         char overlay[32];
-        sprintf(overlay, "%.3f ms", m_AverageFrameTime * 1000.0f);
-        ImGui::PlotLines("##FrameTimes", m_FrameTimes, IM_ARRAYSIZE(m_FrameTimes), m_FrameTimeIndex, 
+        sprintf(overlay, "%.3f ms", averageFrameTime * 1000.0f);
+        ImGui::PlotLines("##FrameTimes", frameTimes, IM_ARRAYSIZE(frameTimes), frameTimeIndex, 
                        overlay, 0.0f, 0.040f, ImVec2(0, 80));
         
         if (ImGui::BeginPopupContextWindow())
@@ -723,7 +723,7 @@ void UI::RenderPerformanceOverlay()
             if (ImGui::MenuItem("Top-right", NULL, corner == 1)) corner = 1;
             if (ImGui::MenuItem("Bottom-left", NULL, corner == 2)) corner = 2;
             if (ImGui::MenuItem("Bottom-right", NULL, corner == 3)) corner = 3;
-            if (ImGui::MenuItem("Close")) m_ShowPerformanceOverlay = false;
+            if (ImGui::MenuItem("Close")) showPerformanceOverlay = false;
             ImGui::EndPopup();
         }
     }
@@ -738,7 +738,7 @@ std::string UI::OpenFileDialog(const char* filter)
     
     ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
     ofn.lStructSize = sizeof(OPENFILENAMEA);
-    ofn.hwndOwner = glfwGetWin32Window(m_Window);
+    ofn.hwndOwner = glfwGetWin32Window(window);
     ofn.lpstrFile = szFile;
     ofn.nMaxFile = sizeof(szFile);
     ofn.lpstrFilter = filter;
@@ -772,7 +772,7 @@ std::string UI::SaveFileDialog(const char* filter)
     
     ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
     ofn.lStructSize = sizeof(OPENFILENAMEA);
-    ofn.hwndOwner = glfwGetWin32Window(m_Window);
+    ofn.hwndOwner = glfwGetWin32Window(window);
     ofn.lpstrFile = szFile;
     ofn.nMaxFile = sizeof(szFile);
     ofn.lpstrFilter = filter;

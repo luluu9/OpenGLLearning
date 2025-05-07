@@ -2,15 +2,15 @@
 #include <iostream>
 
 // Initialize the static instance
-ResourceManager* ResourceManager::s_Instance = nullptr;
+ResourceManager* ResourceManager::instance = nullptr;
 
 ResourceManager* ResourceManager::GetInstance()
 {
-    if (!s_Instance)
+    if (!instance)
     {
-        s_Instance = new ResourceManager();
+        instance = new ResourceManager();
     }
-    return s_Instance;
+    return instance;
 }
 
 ResourceManager::~ResourceManager()
@@ -20,8 +20,8 @@ ResourceManager::~ResourceManager()
 
 Shader* ResourceManager::GetShader(const std::string& name)
 {
-    auto it = m_Shaders.find(name);
-    if (it != m_Shaders.end())
+    auto it = shaders.find(name);
+    if (it != shaders.end())
     {
         return it->second.get();
     }
@@ -52,7 +52,7 @@ Shader* ResourceManager::LoadShaderFromFile(const std::string& name, const std::
     if (shader->LoadFromFile(vertexPath, fragmentPath))
     {
         Shader* rawPtr = shader.get();
-        m_Shaders[name] = std::move(shader);
+        shaders[name] = std::move(shader);
         return rawPtr;
     }
     else
@@ -85,7 +85,7 @@ Shader* ResourceManager::LoadShaderFromSource(const std::string& name, const std
     if (shader->LoadFromSource(vertexSource, fragmentSource))
     {
         Shader* rawPtr = shader.get();
-        m_Shaders[name] = std::move(shader);
+        shaders[name] = std::move(shader);
         return rawPtr;
     }
     else
@@ -97,10 +97,10 @@ Shader* ResourceManager::LoadShaderFromSource(const std::string& name, const std
 
 void ResourceManager::ReleaseShader(const std::string& name)
 {
-    m_Shaders.erase(name);
+    shaders.erase(name);
 }
 
 void ResourceManager::ReleaseAllShaders()
 {
-    m_Shaders.clear();
+    shaders.clear();
 }

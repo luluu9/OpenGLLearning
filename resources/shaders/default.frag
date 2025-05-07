@@ -34,10 +34,28 @@ void main()
     // Calculate ambient component
     vec3 ambient = material.ambient * lightColor;
     
-    // Default to ambient color for flat lighting
-    vec3 result = ambient;
+    // Variable to store the final color result
+    vec3 result;
     
-    if (lightingModel == 1) // Phong lighting
+    if (lightingModel == 0) // Flat lighting
+    {
+        // Calculate light direction
+        vec3 lightDir = normalize(lightPos - FragPos);
+        
+        // Simple diffuse calculation without interpolated normals
+        float diff = max(dot(norm, lightDir), 0.0);
+        
+        // Simple distance attenuation
+        float distance = length(lightPos - FragPos);
+        float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * distance * distance);
+        
+        // For flat shading, we use a simpler formula without specular
+        vec3 diffuse = diff * material.diffuse * lightColor;
+        
+        // Combine lighting with flat appearance (no specular)
+        result = (ambient + diffuse) * attenuation * lightIntensity;
+    }
+    else if (lightingModel == 1) // Phong lighting
     {
         // Calculate light direction and distance
         vec3 lightDir = normalize(lightPos - FragPos);

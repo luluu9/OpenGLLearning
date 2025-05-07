@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 
 // Windows file dialog includes
 #include <Windows.h>
@@ -217,6 +218,17 @@ void UI::RenderMainMenuBar()
             {
                 if (m_OnAddObject)
                     m_OnAddObject("Cone");
+            }
+            
+            ImGui::Separator();
+            
+            if (ImGui::MenuItem("Import Custom Model..."))
+            {
+                std::string filepath = OpenModelDialog();
+                if (!filepath.empty())
+                {
+                    ImportCustomModel(filepath);
+                }
             }
             
             ImGui::EndMenu();
@@ -804,6 +816,52 @@ std::string UI::SaveFileDialog(const char* filter)
     }
     
     return "";
+}
+
+// Method for opening a model file dialog
+std::string UI::OpenModelDialog()
+{
+    OPENFILENAMEA ofn;
+    char szFile[260] = { 0 };
+    
+    ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
+    ofn.lStructSize = sizeof(OPENFILENAMEA);
+    ofn.hwndOwner = glfwGetWin32Window(m_Window);
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = "3D Model Files\0*.obj;*.fbx;*.gltf;*.glb;*.3ds;*.dae\0All Files\0*.*\0";
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    
+    // Get the current working directory
+    char currentDir[MAX_PATH];
+    _getcwd(currentDir, MAX_PATH);
+
+    // Set initial directory to the resources/models folder
+    // Create the directory if it doesn't exist
+    std::string modelsDir = std::string(currentDir) + "\\resources\\models";
+    std::filesystem::create_directories(modelsDir);
+    
+    ofn.lpstrInitialDir = modelsDir.c_str();
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+    
+    if (GetOpenFileNameA(&ofn) == TRUE)
+    {
+        return ofn.lpstrFile;
+    }
+    
+    return "";
+}
+
+// Helper method to import a 3D model
+void UI::ImportCustomModel(const std::string& filepath)
+{
+    if (filepath.empty() || !m_OnImportModel)
+        return;
+        
+    // Call the import model callback with the filepath
+    m_OnImportModel(filepath);
 }
 
 bool UI::IsCapturingKeyboard() const

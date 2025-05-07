@@ -1,5 +1,6 @@
 #include "SceneObject.h"
 #include "Mesh.h"
+#include "Shader.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/euler_angles.hpp>
 
@@ -18,10 +19,31 @@ void SceneObject::Update(float deltaTime)
 
 void SceneObject::Draw()
 {
-    if (!m_Visible || !m_Mesh || !m_Shader)
+    if (!m_Visible || !m_Shader)
         return;
-        
-    m_Mesh->Draw();
+    
+    // Get the transform matrix
+    glm::mat4 transform = GetTransform();
+    
+    // Set the model matrix uniform in the shader
+    m_Shader->Use();
+    m_Shader->SetMat4("model", transform);
+    
+    // Set material properties in the shader
+    m_Shader->SetVec3("material.ambient", m_Material.ambient);
+    m_Shader->SetVec3("material.diffuse", m_Material.diffuse);
+    m_Shader->SetVec3("material.specular", m_Material.specular);
+    m_Shader->SetFloat("material.shininess", m_Material.shininess);
+    
+    // Draw either the mesh or the model
+    if (m_Mesh)
+    {
+        m_Mesh->Draw();
+    }
+    else if (m_Model)
+    {
+        m_Model->Draw(m_Shader);
+    }
 }
 
 void SceneObject::SetPosition(const glm::vec3& position)

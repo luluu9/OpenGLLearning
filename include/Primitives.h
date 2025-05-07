@@ -19,8 +19,6 @@ public:
     // Create complete primitive objects (including mesh, shader, and material)
     static std::unique_ptr<SceneObject> CreatePrimitiveObject(const std::string& type, const std::string& name);
     
-private:
-    
     // Helper method to set up default material
     static void SetupDefaultMaterial(SceneObject* object);
 };

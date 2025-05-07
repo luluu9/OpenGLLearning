@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Mesh.h" // Include the full Mesh definition
+#include "Model.h" // Add Model include
 
 class Shader;
 
@@ -46,10 +47,16 @@ public:
     void SetMaterial(const Material& material) { m_Material = material; }
     
     Mesh* GetMesh() const { return m_Mesh.get(); }
-    void SetMesh(std::unique_ptr<Mesh> mesh) { m_Mesh = std::move(mesh); }
+    void SetMesh(std::unique_ptr<Mesh> mesh) { m_Mesh = std::move(mesh); m_Model = nullptr; }
+    
+    Model* GetModel() const { return m_Model; }
+    void SetModel(Model* model) { m_Model = model; m_Mesh.reset(); }
     
     Shader* GetShader() const { return m_Shader; }
     void SetShader(Shader* shader) { m_Shader = shader; }
+    
+    // Check if the object has a model (instead of a single mesh)
+    bool HasModel() const { return m_Model != nullptr; }
     
 protected:
     std::string m_Name;
@@ -65,5 +72,6 @@ protected:
     // Rendering properties
     Material m_Material;
     std::unique_ptr<Mesh> m_Mesh;
+    Model* m_Model = nullptr; // Not owned, managed by ResourceManager
     Shader* m_Shader = nullptr; // Not owned
 };

@@ -3,9 +3,11 @@
 #include "ResourceManager.h"
 #include "SceneObject.h"
 #include "Shader.h"
+#include "Model.h"
 #include <iostream>
 #include <memory>
 #include <string>
+#include <filesystem>
 
 
 int main()
@@ -54,6 +56,64 @@ int main()
             return;
             
         app->GetScene()->SaveToFile(filepath);
+    });
+    
+    // Add model import callback
+    app.GetUI()->SetOnImportModelCallback([](const std::string& filepath) {
+        Application* app = Application::GetInstance();
+        if (!app || !app->GetScene())
+            return;
+            
+        // Get the filename without extension to use as the model name
+        std::filesystem::path path(filepath);
+        std::string filename = path.filename().string();
+        std::string modelName = filename.substr(0, filename.find_last_of('.'));
+        
+        // Generate a unique object name
+        std::string objectName = "Model_" + modelName + "_" + std::to_string(app->GetScene()->GetObjects().size() + 1);
+        
+        // Create a new scene object
+        auto object = std::make_unique<SceneObject>(objectName);
+        
+        // Convert backslashes to forward slashes for cross-platform compatibility
+        std::string normalizedPath = filepath;
+        std::replace(normalizedPath.begin(), normalizedPath.end(), '\\', '/');
+        
+        // Load the model using ResourceManager
+        ResourceManager* resourceManager = ResourceManager::GetInstance();
+        Model* model = resourceManager->LoadModel(modelName, normalizedPath);
+        
+        if (model)
+        {
+            // Set the model to the object
+            object->SetModel(model);
+            
+            // Get default shader
+            Shader* shader = resourceManager->GetShader("default");
+            if (!shader)
+            {
+                // Load the default shader if not already loaded
+                shader = resourceManager->LoadShaderFromFile("default", 
+                    "resources/shaders/default.vert", 
+                    "resources/shaders/default.frag");
+            }
+            
+            // Set the shader to the object
+            if (shader)
+                object->SetShader(shader);
+                
+            // Set up default material
+            Primitives::SetupDefaultMaterial(object.get());
+            
+            // Add the object to the scene
+            app->GetScene()->AddObject(std::move(object));
+            
+            std::cout << "Successfully imported model: " << normalizedPath << std::endl;
+        }
+        else
+        {
+            std::cerr << "Failed to import model: " << normalizedPath << std::endl;
+        }
     });
     
     // Add default objects to the scene

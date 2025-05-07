@@ -86,12 +86,12 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset)
     pitch = std::clamp(pitch, -89.0f, 89.0f);
     
     // Update camera vectors
-    glm::vec3 front;
-    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    front.y = sin(glm::radians(pitch));
-    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    glm::vec3 newFront;
+    newFront.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    newFront.y = sin(glm::radians(pitch));
+    newFront.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     
-    front = glm::normalize(front);
+    front = glm::normalize(newFront);
     // Recalculate right and up vectors
     right = glm::normalize(glm::cross(front, worldUp));
     up = glm::normalize(glm::cross(right, front));

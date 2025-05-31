@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 
 // Windows file dialog includes
 #include <Windows.h>
@@ -217,6 +218,17 @@ void UI::RenderMainMenuBar()
             {
                 if (onAddObject)
                     onAddObject("Cone");
+            }
+            
+            ImGui::Separator();
+            
+            if (ImGui::MenuItem("Import Custom Model..."))
+            {
+                std::string filepath = OpenModelDialog();
+                if (!filepath.empty())
+                {
+                    ImportCustomModel(filepath);
+                }
             }
             
             ImGui::EndMenu();
@@ -727,7 +739,6 @@ void UI::RenderPerformanceOverlay()
     ImGui::End();
 }
 
-// Open file dialog for loading a scene
 std::string UI::OpenFileDialog(const char* filter)
 {
     OPENFILENAMEA ofn;
@@ -761,7 +772,6 @@ std::string UI::OpenFileDialog(const char* filter)
     return "";
 }
 
-// Save file dialog for saving a scene
 std::string UI::SaveFileDialog(const char* filter)
 {
     OPENFILENAMEA ofn;
@@ -801,6 +811,45 @@ std::string UI::SaveFileDialog(const char* filter)
     }
     
     return "";
+}
+
+std::string UI::OpenModelDialog()
+{
+    OPENFILENAMEA ofn;
+    char szFile[260] = { 0 };
+    
+    ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
+    ofn.lStructSize = sizeof(OPENFILENAMEA);
+    ofn.hwndOwner = glfwGetWin32Window(window);
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = "3D Model Files\0*.obj;*.fbx;*.gltf;*.glb;*.3ds;*.dae\0All Files\0*.*\0";
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    
+    // Get the current working directory
+    char currentDir[MAX_PATH];
+    _getcwd(currentDir, MAX_PATH);
+
+    std::string modelsDir = std::string(currentDir) + "\\resources\\models";
+    ofn.lpstrInitialDir = modelsDir.c_str();
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+    
+    if (GetOpenFileNameA(&ofn) == TRUE)
+    {
+        return ofn.lpstrFile;
+    }
+    
+    return "";
+}
+
+void UI::ImportCustomModel(const std::string& filepath)
+{
+    if (filepath.empty() || !onImportModel)
+        return;
+        
+    onImportModel(filepath);
 }
 
 bool UI::IsCapturingKeyboard() const

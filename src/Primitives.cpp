@@ -329,17 +329,14 @@ std::unique_ptr<SceneObject> Primitives::CreatePrimitiveObject(const std::string
         std::cerr << "Unknown primitive type: " << type << std::endl;
         return nullptr;
     }
-    
-    // Set the mesh to the object
+
     object->SetMesh(std::move(mesh));
-    
-    // Get default shader from ResourceManager or load it if it doesn't exist
+
     ResourceManager* resourceManager = ResourceManager::GetInstance();
     Shader* shader = resourceManager->GetShader("default");
     
     if (!shader)
     {
-        // Load the default shader
         shader = resourceManager->LoadShaderFromFile("default", 
             "resources/shaders/default.vert", 
             "resources/shaders/default.frag");
@@ -351,10 +348,7 @@ std::unique_ptr<SceneObject> Primitives::CreatePrimitiveObject(const std::string
         }
     }
     
-    // Set the shader to the object
     object->SetShader(shader);
-    
-    // Set default material properties
     SetupDefaultMaterial(object.get());
     
     return object;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Shader.h"
+#include "Model.h"
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -17,6 +18,12 @@ public:
     void ReleaseShader(const std::string& name);
     void ReleaseAllShaders();
     
+    // Model management
+    Model* GetModel(const std::string& name);
+    Model* LoadModel(const std::string& name, const std::string& filepath);
+    void ReleaseModel(const std::string& name);
+    void ReleaseAllModels();
+    
 private:
     ResourceManager() {}
     ~ResourceManager();
@@ -29,6 +36,9 @@ private:
     
     // Shader cache
     std::unordered_map<std::string, std::unique_ptr<Shader>> shaders;
+    
+    // Model cache
+    std::unordered_map<std::string, std::unique_ptr<Model>> models;
     
     // Singleton instance
     static ResourceManager* instance;

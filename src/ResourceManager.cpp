@@ -16,8 +16,10 @@ ResourceManager* ResourceManager::GetInstance()
 ResourceManager::~ResourceManager()
 {
     ReleaseAllShaders();
+    ReleaseAllModels();
 }
 
+// Shader management functions
 Shader* ResourceManager::GetShader(const std::string& name)
 {
     auto it = shaders.find(name);
@@ -103,4 +105,57 @@ void ResourceManager::ReleaseShader(const std::string& name)
 void ResourceManager::ReleaseAllShaders()
 {
     shaders.clear();
+}
+
+Model* ResourceManager::GetModel(const std::string& name)
+{
+    auto it = models.find(name);
+    if (it != models.end())
+    {
+        return it->second.get();
+    }
+    
+    return nullptr;
+}
+
+Model* ResourceManager::LoadModel(const std::string& name, const std::string& filepath)
+{
+    auto existingModel = GetModel(name);
+    if (existingModel)
+    {
+        // Reload the model
+        if (existingModel->LoadFromFile(filepath))
+        {
+            return existingModel;
+        }
+        else
+        {
+            std::cerr << "Failed to reload model '" << name << "' from file: " << filepath << std::endl;
+            return nullptr;
+        }
+    }
+    
+    // Create a new model
+    auto model = std::make_unique<Model>();
+    if (model->LoadFromFile(filepath))
+    {
+        Model* rawPtr = model.get();
+        models[name] = std::move(model);
+        return rawPtr;
+    }
+    else
+    {
+        std::cerr << "Failed to load model '" << name << "' from file: " << filepath << std::endl;
+        return nullptr;
+    }
+}
+
+void ResourceManager::ReleaseModel(const std::string& name)
+{
+    models.erase(name);
+}
+
+void ResourceManager::ReleaseAllModels()
+{
+    models.clear();
 }

@@ -1,5 +1,6 @@
 #include "SceneObject.h"
 #include "Mesh.h"
+#include "Shader.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/euler_angles.hpp>
 
@@ -18,10 +19,17 @@ void SceneObject::Update(float deltaTime)
 
 void SceneObject::Draw()
 {
-    if (!visible || !mesh || !shader)
+    if (!visible || !shader)
         return;
-        
-    mesh->Draw();
+
+    if (mesh)
+    {
+        mesh->Draw();
+    }
+    else if (model)
+    {
+        model->Draw();
+    }
 }
 
 void SceneObject::SetPosition(const glm::vec3& newPosition)

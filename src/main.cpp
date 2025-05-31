@@ -3,9 +3,11 @@
 #include "ResourceManager.h"
 #include "SceneObject.h"
 #include "Shader.h"
+#include "Model.h"
 #include <iostream>
 #include <memory>
 #include <string>
+#include <filesystem>
 
 
 int main()
@@ -54,6 +56,51 @@ int main()
             return;
             
         app->GetScene()->SaveToFile(filepath);
+    });
+    
+    // Add model import callback
+    app.GetUI()->SetOnImportModelCallback([](const std::string& filepath) {
+        Application* app = Application::GetInstance();
+        if (!app || !app->GetScene())
+            return;
+            
+        std::filesystem::path path(filepath);
+        std::string filename = path.filename().string();
+        std::string modelName = filename.substr(0, filename.find_last_of('.'));
+        std::string objectName = "Model_" + modelName + "_" + std::to_string(app->GetScene()->GetObjects().size() + 1);
+        
+        auto object = std::make_unique<SceneObject>(objectName);
+        
+        // Convert backslashes to forward slashes for cross-platform compatibility
+        std::string normalizedPath = filepath;
+        std::replace(normalizedPath.begin(), normalizedPath.end(), '\\', '/');
+        
+        ResourceManager* resourceManager = ResourceManager::GetInstance();
+        Model* model = resourceManager->LoadModel(modelName, normalizedPath);
+        
+        if (model)
+        {
+            object->SetModel(model);
+            
+            Shader* shader = resourceManager->GetShader("default");
+            if (!shader)
+            {
+                shader = resourceManager->LoadShaderFromFile("default", 
+                    "resources/shaders/default.vert", 
+                    "resources/shaders/default.frag");
+            }
+            if (shader)
+                object->SetShader(shader);
+                
+            Primitives::SetupDefaultMaterial(object.get());
+            app->GetScene()->AddObject(std::move(object));
+            
+            std::cout << "Successfully imported model: " << normalizedPath << std::endl;
+        }
+        else
+        {
+            std::cerr << "Failed to import model: " << normalizedPath << std::endl;
+        }
     });
     
     // Add default objects to the scene

@@ -15,6 +15,7 @@ find_package(glad CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
+find_package(assimp CONFIG REQUIRED)
 
 # ImGui implementation files
 set(IMGUI_IMPL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/imgui")
@@ -47,6 +48,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     glm::glm
     imgui::imgui
     nlohmann_json::nlohmann_json
+    assimp::assimp
 )
 
 # Copy resources folder to build directory

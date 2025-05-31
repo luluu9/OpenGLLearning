@@ -47,6 +47,9 @@ public:
     // Set callbacks for when shader code is compiled
     void SetOnCompileShaderCallback(std::function<bool(Shader*, const std::string&, const std::string&)> callback) { onCompileShader = callback; }
     
+    // Set callback for when a custom model is imported
+    void SetOnImportModelCallback(std::function<void(const std::string&)> callback) { onImportModel = callback; }
+    
     bool IsCapturingKeyboard() const;
     bool IsCapturingMouse() const;
     
@@ -61,6 +64,10 @@ private:
     // File dialogs
     std::string OpenFileDialog(const char* filter);
     std::string SaveFileDialog(const char* filter);
+    std::string OpenModelDialog();
+    
+    // Helper method to import a 3D model
+    void ImportCustomModel(const std::string& filepath);
     
     // UI state
     bool showDemoWindow = false;
@@ -88,6 +95,7 @@ private:
     std::function<void(const std::string&)> onSceneSave;
     std::function<void(const std::string&)> onAddObject;
     std::function<bool(Shader*, const std::string&, const std::string&)> onCompileShader;
+    std::function<void(const std::string&)> onImportModel;
     
     // Frame timing
     float frameTimes[100] = { 0 };

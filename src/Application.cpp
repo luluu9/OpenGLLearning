@@ -131,7 +131,7 @@ void Application::Update()
         scene->Update(deltaTime);
 
     if (ui)
-    ui->Update();
+        ui->Update();
 }
 
 void Application::Render()

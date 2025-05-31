@@ -706,9 +706,6 @@ void UI::RenderPerformanceOverlay()
         ImGui::Text("Performance");
         ImGui::Separator();
         ImGui::Text("FPS: %.1f", 1.0f / averageFrameTime);
-        ImGui::Text("Frame Time: %.3f ms", averageFrameTime * 1000.0f);
-        
-        ImGui::Separator();
         
         ImGui::Text("Frame Time Graph");
         char overlay[32];

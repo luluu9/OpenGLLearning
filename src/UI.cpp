@@ -747,6 +747,16 @@ void UI::RenderObjectProperties()
             ImGui::ColorEdit3("Specular", &material.specular[0]);
             ImGui::SliderFloat("Shininess", &material.shininess, 1.0f, 256.0f);
         }
+
+        if (ImGui::Button("Unselect"))
+        {
+            // Unhighlight current selection
+            if (selectedObject && selectedObject->IsHighlighted())
+            {
+                selectedObject->SetHighlighted(false);
+            }
+            selectedObject = nullptr;
+        }
     }
     else
     {

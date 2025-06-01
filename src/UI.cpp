@@ -509,12 +509,6 @@ void UI::RenderShaderEditor()
     // Render the shader library UI only if enabled
     else
     {
-        if (ImGui::Button("Refresh Shader Library"))
-        {
-            RefreshShaderLibrary();
-        }
-        
-        ImGui::SameLine();
         if (ImGui::Button("Load All Shaders"))
         {
             ResourceManager* resourceManager = ResourceManager::GetInstance();

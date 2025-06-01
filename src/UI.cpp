@@ -5,6 +5,7 @@
 #include "SceneObject.h"
 #include "Shader.h"
 #include "Primitives.h"
+#include "ResourceManager.h"
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -265,7 +266,7 @@ void UI::RenderMainMenuBar()
                         renderer->SetLightingModel(LightingModel::Flat);
                         
                     bool isPhong = renderer->GetLightingModel() == LightingModel::Phong;
-                    if (ImGui::MenuItem("Phong", nullptr, isPhong))
+                    if (ImGui::MenuItem("Blinn-Phong", nullptr, isPhong))
                         renderer->SetLightingModel(LightingModel::Phong);
                         
                     ImGui::EndMenu();
@@ -329,150 +330,293 @@ void UI::RenderShaderEditor()
         ImGui::Separator();
     }
     
-    static bool firstTime = true;
-    if (firstTime)
+    // Tab bar for switching between editor and shader library
+    if (ImGui::BeginTabBar("ShaderEditorTabs"))
     {
-        // Load default shaders
-        std::ifstream vertFile("resources/shaders/default.vert");
-        if (vertFile.is_open())
+        // Custom Shader Editor Tab
+        if (ImGui::BeginTabItem("Shader Editor"))
         {
-            std::stringstream buffer;
-            buffer << vertFile.rdbuf();
-            vertexShaderSource = buffer.str();
-            vertFile.close();
-        }
-        
-        std::ifstream fragFile("resources/shaders/default.frag");
-        if (fragFile.is_open())
-        {
-            std::stringstream buffer;
-            buffer << fragFile.rdbuf();
-            fragmentShaderSource = buffer.str();
-            fragFile.close();
-        }
-        
-        firstTime = false;
-    }
-    
-    // Set up some reasonable sizes for the editor
-    ImVec2 size = ImGui::GetContentRegionAvail();
-    size.y = size.y / 2.0f - 45.0f;
-    
-    ImGui::Text("Vertex Shader");
-    // Use InputTextMultiline with a callback that properly handles std::string
-    if (ImGui::InputTextMultiline("##VertexShader", 
-                                 const_cast<char*>(vertexShaderSource.data()), 
-                                 vertexShaderSource.capacity() + 1, 
-                                 size, 
-                                 ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_CallbackResize,
-                                 [](ImGuiInputTextCallbackData* data) -> int {
-                                     if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
-                                     {
-                                         std::string* str = static_cast<std::string*>(data->UserData);
-                                         str->resize(data->BufTextLen);
-                                         data->Buf = const_cast<char*>(str->c_str());
-                                     }
-                                     return 0;
-                                 }, &vertexShaderSource))
-    {
-        shaderModified = true;
-    }
-    
-    ImGui::Text("Fragment Shader");
-    // Use InputTextMultiline with a callback that properly handles std::string
-    if (ImGui::InputTextMultiline("##FragmentShader", 
-                                 const_cast<char*>(fragmentShaderSource.data()), 
-                                 fragmentShaderSource.capacity() + 1, 
-                                 size, 
-                                 ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_CallbackResize,
-                                 [](ImGuiInputTextCallbackData* data) -> int {
-                                     if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
-                                     {
-                                         std::string* str = static_cast<std::string*>(data->UserData);
-                                         str->resize(data->BufTextLen);
-                                         data->Buf = const_cast<char*>(str->c_str());
-                                     }
-                                     return 0;
-                                 }, &fragmentShaderSource))
-    {
-        shaderModified = true;
-    }
-    
-    // Show status indicator if the shader has been modified
-    if (shaderModified)
-    {
-        ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.0f, 1.0f), "Shader modified - Click 'Compile Shader' to apply changes");
-    }
-    
-    // Compile button (disabled if no object is selected)
-    if (!selectedObject)
-    {
-        ImGui::BeginDisabled();
-    }
-    
-    if (ImGui::Button("Compile Shader") || ImGui::IsKeyPressed(ImGuiKey_F5))
-    {
-        if (onCompileShader && selectedObject)
-        {
-            Shader* shader = selectedObject->GetShader();
-            if (shader)
+            static bool firstTime = true;
+            if (firstTime)
             {
-                // Try to compile the shader
-                bool success = onCompileShader(shader, vertexShaderSource, fragmentShaderSource);
-                if (success)
+                // Load default shaders
+                std::ifstream vertFile("resources/shaders/default.vert");
+                if (vertFile.is_open())
                 {
-                    shaderModified = false;
-                    compilationSuccessful = true;
-                    compilationMessage = "Shader compiled successfully!";
+                    std::stringstream buffer;
+                    buffer << vertFile.rdbuf();
+                    vertexShaderSource = buffer.str();
+                    vertFile.close();
+                }
+                
+                std::ifstream fragFile("resources/shaders/default.frag");
+                if (fragFile.is_open())
+                {
+                    std::stringstream buffer;
+                    buffer << fragFile.rdbuf();
+                    fragmentShaderSource = buffer.str();
+                    fragFile.close();
+                }
+                
+                firstTime = false;
+            }
+            
+            // Switch to the editor view
+            useShaderLibrary = false;
+            
+            ImGui::EndTabItem();
+        }
+        
+        // Shader Library Tab
+        if (ImGui::BeginTabItem("Shader Library"))
+        {
+            // Ensure we have the latest shaders
+            if (allShaders.empty())
+            {
+                RefreshShaderLibrary();
+            }
+            
+            // Switch to the library view
+            useShaderLibrary = true;
+            
+            ImGui::EndTabItem();
+        }
+        
+        ImGui::EndTabBar();
+    }
+      // Only show the editor content if we're not in library mode
+    if (!useShaderLibrary)
+    {
+        // Set up some reasonable sizes for the editor
+        ImVec2 size = ImGui::GetContentRegionAvail();
+        size.y = size.y / 2.0f - 45.0f;
+    
+        ImGui::Text("Vertex Shader");
+        // Use InputTextMultiline with a callback that properly handles std::string
+        if (ImGui::InputTextMultiline("##VertexShader", 
+                                    const_cast<char*>(vertexShaderSource.data()), 
+                                    vertexShaderSource.capacity() + 1, 
+                                    size, 
+                                    ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_CallbackResize,
+                                    [](ImGuiInputTextCallbackData* data) -> int {
+                                        if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
+                                        {
+                                            std::string* str = static_cast<std::string*>(data->UserData);
+                                            str->resize(data->BufTextLen);
+                                            data->Buf = const_cast<char*>(str->c_str());
+                                        }
+                                        return 0;
+                                    }, &vertexShaderSource))
+        {
+            shaderModified = true;
+        }
+        
+        ImGui::Text("Fragment Shader");
+        // Use InputTextMultiline with a callback that properly handles std::string
+        if (ImGui::InputTextMultiline("##FragmentShader", 
+                                    const_cast<char*>(fragmentShaderSource.data()), 
+                                    fragmentShaderSource.capacity() + 1, 
+                                    size, 
+                                    ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_CallbackResize,
+                                    [](ImGuiInputTextCallbackData* data) -> int {
+                                        if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
+                                        {
+                                            std::string* str = static_cast<std::string*>(data->UserData);
+                                            str->resize(data->BufTextLen);
+                                            data->Buf = const_cast<char*>(str->c_str());
+                                        }
+                                        return 0;
+                                    }, &fragmentShaderSource))
+        {
+            shaderModified = true;
+        }
+        
+        // Show status indicator if the shader has been modified
+        if (shaderModified)
+        {
+            ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.0f, 1.0f), "Shader modified - Click 'Compile Shader' to apply changes");
+        }
+        
+        // Compile button (disabled if no object is selected)
+        if (!selectedObject)
+        {
+            ImGui::BeginDisabled();
+        }
+        
+        if (ImGui::Button("Compile Shader") || ImGui::IsKeyPressed(ImGuiKey_F5))
+        {
+            if (onCompileShader && selectedObject)
+            {
+                Shader* shader = selectedObject->GetShader();
+                if (shader)
+                {
+                    // Try to compile the shader
+                    bool success = onCompileShader(shader, vertexShaderSource, fragmentShaderSource);
+                    if (success)
+                    {
+                        shaderModified = false;
+                        compilationSuccessful = true;
+                        compilationMessage = "Shader compiled successfully!";
+                    }
+                    else
+                    {
+                        compilationSuccessful = false;
+                        compilationMessage = "Failed to compile shader: " + shader->GetCompilationLog();
+                    }
                 }
                 else
                 {
                     compilationSuccessful = false;
-                    compilationMessage = "Failed to compile shader: " + shader->GetCompilationLog();
+                    compilationMessage = "Object does not have a shader attached!";
                 }
+            }
+        }
+        if (!selectedObject)
+        {
+            ImGui::EndDisabled();
+        }
+        
+        ImGui::SameLine();
+        if (ImGui::Button("Reset to Default"))
+        {
+            // Load default shaders again
+            std::ifstream vertFile("resources/shaders/default.vert");
+            if (vertFile.is_open())
+            {
+                std::stringstream buffer;
+                buffer << vertFile.rdbuf();
+                vertexShaderSource = buffer.str();
+                vertFile.close();
+            }
+            
+            std::ifstream fragFile("resources/shaders/default.frag");
+            if (fragFile.is_open())
+            {
+                std::stringstream buffer;
+                buffer << fragFile.rdbuf();
+                fragmentShaderSource = buffer.str();
+                fragFile.close();
+            }
+            
+            shaderModified = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Clear Message"))
+        {
+            compilationMessage.clear();
+        }
+    } 
+    // Render the shader library UI only if enabled
+    else
+    {
+        if (ImGui::Button("Refresh Shader Library"))
+        {
+            RefreshShaderLibrary();
+        }
+        
+        ImGui::SameLine();
+        if (ImGui::Button("Load All Shaders"))
+        {
+            ResourceManager* resourceManager = ResourceManager::GetInstance();
+            if (resourceManager->LoadAllShadersFromDirectory("resources/shaders"))
+            {
+                RefreshShaderLibrary();
+                compilationMessage = "All shaders loaded successfully";
+                compilationSuccessful = true;
             }
             else
             {
+                compilationMessage = "Some shaders failed to load. Check console for details.";
                 compilationSuccessful = false;
-                compilationMessage = "Object does not have a shader attached!";
             }
         }
-    }
-    
-    if (!selectedObject)
-    {
-        ImGui::EndDisabled();
-    }
-    
-    ImGui::SameLine();
-    if (ImGui::Button("Reset to Default"))
-    {
-        // Load default shaders again
-        std::ifstream vertFile("resources/shaders/default.vert");
-        if (vertFile.is_open())
+        
+        ImGui::Separator();
+        ImGui::Text("Categories:");
+        
+        // Display categories as a list of selectable items
+        float categoryWidth = ImGui::GetContentRegionAvail().x * 0.25f;
+        ImGui::BeginChild("CategoryList", ImVec2(categoryWidth, ImGui::GetContentRegionAvail().y * 0.8f), true);
+        
+        // Always show "All" category first
+        if (ImGui::Selectable("All", currentShaderCategory == "All"))
         {
-            std::stringstream buffer;
-            buffer << vertFile.rdbuf();
-            vertexShaderSource = buffer.str();
-            vertFile.close();
+            currentShaderCategory = "All";
         }
         
-        std::ifstream fragFile("resources/shaders/default.frag");
-        if (fragFile.is_open())
+        // Show other categories
+        for (const auto& [category, shaders] : shaderCategories)
         {
-            std::stringstream buffer;
-            buffer << fragFile.rdbuf();
-            fragmentShaderSource = buffer.str();
-            fragFile.close();
+            if (category != "All")
+            {
+                if (ImGui::Selectable(category.c_str(), currentShaderCategory == category))
+                {
+                    currentShaderCategory = category;
+                }
+            }
         }
         
-        shaderModified = true;
-    }
-    
-    ImGui::SameLine();
-    if (ImGui::Button("Clear Message"))
-    {
-        compilationMessage.clear();
+        ImGui::EndChild();
+        
+        // Shader list for the selected category
+        ImGui::SameLine();
+        ImGui::BeginChild("ShaderList", ImVec2(0, ImGui::GetContentRegionAvail().y * 0.8f), true);
+        
+        const auto& shadersInCategory = shaderCategories[currentShaderCategory];
+        if (shadersInCategory.empty())
+        {
+            ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.5f, 1.0f), "No shaders in this category.");
+        }
+        else
+        {
+            ResourceManager* resourceManager = ResourceManager::GetInstance();
+            
+            for (const auto& shaderName : shadersInCategory)
+            {
+                ImGui::PushID(shaderName.c_str());
+                
+                ImGui::AlignTextToFramePadding();
+                ImGui::Text("%s", shaderName.c_str());
+                
+                if (!selectedObject)
+                {
+                    ImGui::BeginDisabled();
+                }
+                
+                ImGui::SameLine(ImGui::GetContentRegionAvail().x - 100.0f);
+                if (ImGui::Button("Apply", ImVec2(100.0f, 0)))
+                {
+                    if (selectedObject && onSelectShader)
+                    {
+                        onSelectShader(shaderName);
+                        compilationMessage = "Applied shader: " + shaderName;
+                        compilationSuccessful = true;
+                    }
+                }
+                  if (!selectedObject)
+                {
+                    ImGui::EndDisabled();
+                }
+                
+                if (ImGui::IsItemHovered())
+                {
+                    // Get the actual description from ShaderInfo instead of the category
+                    auto it = resourceManager->GetShaderInfo(shaderName);
+                    if (!it.description.empty())
+                    {
+                        ImGui::SetTooltip("%s", it.description.c_str());
+                    }
+                    else
+                    {
+                        ImGui::SetTooltip("Category: %s", resourceManager->GetShaderCategory(shaderName).c_str());
+                    }
+                }
+                
+                ImGui::PopID();
+            }
+        }
+        
+        ImGui::EndChild();
     }
     
     ImGui::End();
@@ -737,6 +881,30 @@ void UI::RenderPerformanceOverlay()
         }
     }
     ImGui::End();
+}
+
+void UI::RefreshShaderLibrary()
+{
+    // Get all shader names from ResourceManager
+    ResourceManager* resourceManager = ResourceManager::GetInstance();
+    allShaders = resourceManager->GetAllShaderNames();
+    
+    // Clear existing categories
+    shaderCategories.clear();
+    shaderCategories["All"] = allShaders;
+    
+    // Group shaders by category
+    for (const auto& shaderName : allShaders)
+    {
+        std::string category = resourceManager->GetShaderCategory(shaderName);
+        shaderCategories[category].push_back(shaderName);
+    }
+    
+    // If no category is selected or the selected category no longer exists, default to "All"
+    if (shaderCategories.find(currentShaderCategory) == shaderCategories.end())
+    {
+        currentShaderCategory = "All";
+    }
 }
 
 std::string UI::OpenFileDialog(const char* filter)

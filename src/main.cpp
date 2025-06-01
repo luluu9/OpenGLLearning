@@ -34,12 +34,33 @@ int main()
         if (object)
             app->GetScene()->AddObject(std::move(object));
     });
-    
     app.GetUI()->SetOnCompileShaderCallback([](Shader* shader, const std::string& vertexSource, const std::string& fragmentSource) {
         if (!shader)
             return false;
             
         return shader->LoadFromSource(vertexSource, fragmentSource);
+    });
+    
+    app.GetUI()->SetOnSelectShaderCallback([](const std::string& shaderName) {
+        Application* app = Application::GetInstance();
+        if (!app || !app->GetUI() || !app->GetScene())
+            return;
+        
+        ResourceManager* resourceManager = ResourceManager::GetInstance();
+        Shader* shader = resourceManager->GetShader(shaderName);
+        if (!shader)
+        {
+            std::cerr << "Failed to get shader: " << shaderName << std::endl;
+            return;
+        }
+        
+        // Get the currently selected object from the UI
+        SceneObject* selectedObject = app->GetUI()->GetSelectedObject();
+        if (selectedObject)
+        {
+            selectedObject->SetShader(shader);
+            std::cout << "Applied shader '" << shaderName << "' to object '" << selectedObject->GetName() << "'" << std::endl;
+        }
     });
     
     app.GetUI()->SetOnSceneLoadCallback([](const std::string& filepath) {

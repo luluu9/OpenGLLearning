@@ -6,6 +6,8 @@
 #include <GLFW/glfw3native.h>
 #include <string>
 #include <functional>
+#include <vector>
+#include <unordered_map>
 
 class Scene;
 class Renderer;
@@ -26,6 +28,10 @@ public:
     // Shader editing
     void ShowShaderEditor(bool show) { showShaderEditor = show; }
     bool IsShaderEditorShown() const { return showShaderEditor; }
+    
+    // Update shader library
+    void RefreshShaderLibrary();
+    void SetOnSelectShaderCallback(std::function<void(const std::string&)> callback) { onSelectShader = callback; }
     
     // Object properties panel
     void ShowObjectProperties(bool show) { showObjectProperties = show; }
@@ -49,6 +55,9 @@ public:
     
     // Set callback for when a custom model is imported
     void SetOnImportModelCallback(std::function<void(const std::string&)> callback) { onImportModel = callback; }
+    
+    // Get currently selected object
+    SceneObject* GetSelectedObject() const { return selectedObject; }
     
     bool IsCapturingKeyboard() const;
     bool IsCapturingMouse() const;
@@ -95,7 +104,14 @@ private:
     std::function<void(const std::string&)> onSceneSave;
     std::function<void(const std::string&)> onAddObject;
     std::function<bool(Shader*, const std::string&, const std::string&)> onCompileShader;
+    std::function<void(const std::string&)> onSelectShader;
     std::function<void(const std::string&)> onImportModel;
+    
+    // Shader library state
+    bool useShaderLibrary = false;
+    std::vector<std::string> allShaders;
+    std::unordered_map<std::string, std::vector<std::string>> shaderCategories;
+    std::string currentShaderCategory = "All";
     
     // Frame timing
     float frameTimes[100] = { 0 };

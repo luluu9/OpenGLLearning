@@ -4,6 +4,7 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+#include "ResourceManager.h"
 
 Application* Application::instance = nullptr;
 
@@ -68,6 +69,11 @@ bool Application::Initialize()
         std::cerr << "Failed to initialize UI" << std::endl;
         return false;
     }
+    
+    // Load all shaders from the resources directory
+    ResourceManager* resourceManager = ResourceManager::GetInstance();
+    resourceManager->LoadAllShadersFromDirectory("resources/shaders");
+    ui->RefreshShaderLibrary();
 
     // Setup resize callback
     glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height) {

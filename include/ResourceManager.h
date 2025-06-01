@@ -5,10 +5,20 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 class ResourceManager
 {
 public:
+    // Shader metadata for categorization
+    struct ShaderInfo {
+        std::string name;
+        std::string category;
+        std::string vertexPath;
+        std::string fragmentPath;
+        std::string description;
+    };
+
     static ResourceManager* GetInstance();
     
     // Shader management
@@ -17,6 +27,12 @@ public:
     Shader* LoadShaderFromSource(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource);
     void ReleaseShader(const std::string& name);
     void ReleaseAllShaders();
+    
+    // Shader library functions
+    bool LoadAllShadersFromDirectory(const std::string& directory);
+    std::vector<std::string> GetAllShaderNames() const;
+    std::string GetShaderCategory(const std::string& name) const;
+    const ShaderInfo& GetShaderInfo(const std::string& name) const;
     
     // Model management
     Model* GetModel(const std::string& name);
@@ -36,6 +52,7 @@ private:
     
     // Shader cache
     std::unordered_map<std::string, std::unique_ptr<Shader>> shaders;
+    std::unordered_map<std::string, ShaderInfo> shaderInfos;
     
     // Model cache
     std::unordered_map<std::string, std::unique_ptr<Model>> models;

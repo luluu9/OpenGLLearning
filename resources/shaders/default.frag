@@ -55,7 +55,7 @@ void main()
         // Combine lighting with flat appearance (no specular)
         result = (ambient + diffuse) * attenuation * lightIntensity;
     }
-    else if (lightingModel == 1) // Phong lighting
+    else if (lightingModel == 1) // Blinn-Phong lighting
     {
         // Calculate light direction and distance
         vec3 lightDir = normalize(lightPos - FragPos);

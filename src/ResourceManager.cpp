@@ -48,9 +48,9 @@ Shader* ResourceManager::LoadShaderFromFile(const std::string& name, const std::
             return nullptr;
         }
     }
-    
-    // Create a new shader
+      // Create a new shader
     auto shader = std::make_unique<Shader>();
+    shader->SetName(name);
     if (shader->LoadFromFile(vertexPath, fragmentPath))
     {
         Shader* rawPtr = shader.get();
@@ -81,9 +81,9 @@ Shader* ResourceManager::LoadShaderFromSource(const std::string& name, const std
             return nullptr;
         }
     }
-    
-    // Create a new shader
+      // Create a new shader
     auto shader = std::make_unique<Shader>();
+    shader->SetName(name);
     if (shader->LoadFromSource(vertexSource, fragmentSource))
     {
         Shader* rawPtr = shader.get();

@@ -13,6 +13,9 @@ public:
     bool LoadFromFile(const std::string& vertexPath, const std::string& fragmentPath);
     bool LoadFromSource(const std::string& vertexSource, const std::string& fragmentSource);
     
+    std::string GetName() const { return name; }
+    void SetName(const std::string& newName) { name = newName; }
+    
     void Use() const;
     void Delete();
     
@@ -37,6 +40,7 @@ public:
     
 private:
     unsigned int id = 0;
+    std::string name;
     mutable std::unordered_map<std::string, int> uniformLocationCache;
     std::string compilationLog;
     

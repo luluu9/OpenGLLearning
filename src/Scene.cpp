@@ -1,10 +1,12 @@
 #include "Scene.h"
 #include "SceneObject.h"
 #include "Primitives.h"
+#include "ResourceManager.h"
 #include "Shader.h"
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <fstream>
+#include <filesystem>
 
 using json = nlohmann::json;
 
@@ -124,26 +126,51 @@ bool Scene::SaveToFile(const std::string& filepath)
             
             // Save material
             const Material& material = object->GetMaterial();
-            objectJson["material"]["ambient"] = {material.ambient.r, material.ambient.g, material.ambient.b};
-            objectJson["material"]["diffuse"] = {material.diffuse.r, material.diffuse.g, material.diffuse.b};
+            objectJson["material"]["ambient"] = {material.ambient.r, material.ambient.g, material.ambient.b};            objectJson["material"]["diffuse"] = {material.diffuse.r, material.diffuse.g, material.diffuse.b};
             objectJson["material"]["specular"] = {material.specular.r, material.specular.g, material.specular.b};
             objectJson["material"]["shininess"] = material.shininess;
             
-            // TODO: Save mesh data (for now we just save type as we're using primitives)
-            // In a more advanced implementation, we would save the mesh data or a reference to a mesh file
+            // Save shader information
+            if (object->GetShader()) {
+                objectJson["shader"] = object->GetShader()->GetName();
+            }
             
-            // Determine the primitive type based on name prefix (not ideal, but works for this example)
-            std::string type = "Cube"; // default
-            if (object->GetName().find("Sphere") != std::string::npos)
-                type = "Sphere";
-            else if (object->GetName().find("Plane") != std::string::npos)
-                type = "Plane";
-            else if (object->GetName().find("Cylinder") != std::string::npos)
-                type = "Cylinder";
-            else if (object->GetName().find("Cone") != std::string::npos)
-                type = "Cone";
+            // Distinguish between primitives and custom models
+            if (object->HasModel() && object->GetModel())
+            {
+                // It's a custom model
+                objectJson["objectType"] = "model";
                 
-            objectJson["type"] = type;
+                // Save model file path
+                const std::string& modelPath = object->GetModel()->GetFilePath();
+                objectJson["modelPath"] = modelPath;
+                
+                // Also save model name used in ResourceManager
+                std::string modelName = "";
+                std::filesystem::path path(modelPath);
+                if (path.has_filename()) {
+                    modelName = path.filename().replace_extension("").string();
+                }
+                objectJson["modelName"] = modelName;
+            }
+            else
+            {
+                // It's a primitive
+                objectJson["objectType"] = "primitive";
+                
+                // Determine the primitive type based on name prefix or use more reliable methods if available
+                std::string type = "Cube"; // default
+                if (object->GetName().find("Sphere") != std::string::npos)
+                    type = "Sphere";
+                else if (object->GetName().find("Plane") != std::string::npos)
+                    type = "Plane";
+                else if (object->GetName().find("Cylinder") != std::string::npos)
+                    type = "Cylinder";
+                else if (object->GetName().find("Cone") != std::string::npos)
+                    type = "Cone";
+                    
+                objectJson["primitiveType"] = type;
+            }
             
             objectsJson.push_back(objectJson);
         }
@@ -224,8 +251,7 @@ bool Scene::LoadFromFile(const std::string& filepath)
             defaultLight.intensity = 1.0f;
             lights.push_back(defaultLight);
         }
-        
-        // Load objects
+          // Load objects
         if (sceneJson.contains("objects") && sceneJson["objects"].is_array())
         {
             for (const auto& objectJson : sceneJson["objects"])
@@ -236,17 +262,89 @@ bool Scene::LoadFromFile(const std::string& filepath)
                     name = objectJson["name"];
                 }
                 
-                std::string type = "Cube"; // default
-                if (objectJson.contains("type") && objectJson["type"].is_string())
+                std::unique_ptr<SceneObject> object;
+                
+                // Determine if this is a primitive or a custom model
+                std::string objectType = "primitive"; // default to primitive for backwards compatibility
+                if (objectJson.contains("objectType") && objectJson["objectType"].is_string())
                 {
-                    type = objectJson["type"];
+                    objectType = objectJson["objectType"];
                 }
                 
-                // Create the object based on type - use Primitives class static method
-                auto object = Primitives::CreatePrimitiveObject(type, name);
-                if (!object)
-                    continue;
+                if (objectType == "model")
+                {
+                    // Handle custom model
+                    std::string modelPath;
+                    std::string modelName;
                     
+                    if (objectJson.contains("modelPath") && objectJson["modelPath"].is_string())
+                    {
+                        modelPath = objectJson["modelPath"];
+                    }
+                    
+                    if (objectJson.contains("modelName") && objectJson["modelName"].is_string())
+                    {
+                        modelName = objectJson["modelName"];
+                    }
+                    else if (!modelPath.empty())
+                    {
+                        // Extract model name from path if not provided
+                        std::filesystem::path path(modelPath);
+                        modelName = path.filename().replace_extension("").string();
+                    }
+                    
+                    if (!modelPath.empty())
+                    {
+                        // Create a new SceneObject
+                        object = std::make_unique<SceneObject>(name);
+                        
+                        // Normalize path for cross-platform compatibility
+                        std::string normalizedPath = modelPath;
+                        std::replace(normalizedPath.begin(), normalizedPath.end(), '\\', '/');
+                        
+                        // Load the model using ResourceManager
+                        ResourceManager* resourceManager = ResourceManager::GetInstance();
+                        Model* model = resourceManager->LoadModel(modelName, normalizedPath);
+                          if (model)
+                        {
+                            object->SetModel(model);
+                            
+                            // We'll assign shaders later when processing the shader property,
+                            // or fall back to default if no shader is specified
+                        }
+                        else
+                        {
+                            std::cerr << "Failed to load model: " << normalizedPath << std::endl;
+                            continue; // Skip this object if model loading failed
+                        }
+                    }
+                    else
+                    {
+                        std::cerr << "Model path missing for object: " << name << std::endl;
+                        continue; // Skip this object
+                    }
+                }
+                else
+                {
+                    // Handle primitive object
+                    std::string primitiveType = "Cube"; // default
+                    
+                    if (objectJson.contains("primitiveType") && objectJson["primitiveType"].is_string())
+                    {
+                        primitiveType = objectJson["primitiveType"];
+                    }
+                    else if (objectJson.contains("type") && objectJson["type"].is_string())
+                    {
+                        // For backward compatibility with older scene files
+                        primitiveType = objectJson["type"];
+                    }
+                    
+                    // Create primitive object
+                    object = Primitives::CreatePrimitiveObject(primitiveType, name);
+                    if (!object)
+                        continue; // Skip if primitive creation failed
+                }
+                
                 // Set visibility
                 if (objectJson.contains("visible") && objectJson["visible"].is_boolean())
                 {
@@ -323,8 +421,23 @@ bool Scene::LoadFromFile(const std::string& filepath)
                     {
                         material.shininess = objectJson["material"]["shininess"];
                     }
+                      object->SetMaterial(material);
+                }
+                
+                // Load shader if specified
+                if (objectJson.contains("shader") && objectJson["shader"].is_string()) {
+                    std::string shaderName = objectJson["shader"];
+                    ResourceManager* resourceManager = ResourceManager::GetInstance();
+                    Shader* shader = resourceManager->GetShader(shaderName);
                     
-                    object->SetMaterial(material);
+                    // If specified shader does not exist, try to fall back to default
+                    if (!shader) {
+                        shader = resourceManager->GetShader("default");
+                    }
+                    
+                    if (shader) {
+                        object->SetShader(shader);
+                    }
                 }
                 
                 // Add object to scene

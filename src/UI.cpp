@@ -585,6 +585,36 @@ void UI::RenderShaderEditor()
                         onSelectShader(shaderName);
                         compilationMessage = "Applied shader: " + shaderName;
                         compilationSuccessful = true;
+                        
+                        // Load the shader source into the editor
+                        ResourceManager* resourceManager = ResourceManager::GetInstance();
+                        const auto& shaderInfo = resourceManager->GetShaderInfo(shaderName);
+                        
+                        if (!shaderInfo.vertexPath.empty() && !shaderInfo.fragmentPath.empty())
+                        {
+                            // Load vertex shader source
+                            std::ifstream vertFile(shaderInfo.vertexPath);
+                            if (vertFile.is_open())
+                            {
+                                std::stringstream buffer;
+                                buffer << vertFile.rdbuf();
+                                vertexShaderSource = buffer.str();
+                                vertFile.close();
+                            }
+                            
+                            // Load fragment shader source
+                            std::ifstream fragFile(shaderInfo.fragmentPath);
+                            if (fragFile.is_open())
+                            {
+                                std::stringstream buffer;
+                                buffer << fragFile.rdbuf();
+                                fragmentShaderSource = buffer.str();
+                                fragFile.close();
+                            }
+                            
+                            // Switch to editor mode
+                            useShaderLibrary = false;
+                        }
                     }
                 }
                   if (!selectedObject)

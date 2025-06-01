@@ -3,6 +3,7 @@
 #include "Shader.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/euler_angles.hpp>
+#include "ResourceManager.h"
 
 SceneObject::SceneObject(const std::string& name)
     : name(name)
@@ -30,6 +31,43 @@ void SceneObject::Draw()
     {
         model->Draw();
     }
+}
+
+void SceneObject::DrawHighlight()
+{
+    if (!visible || !highlighted)
+        return;
+    
+    static float highlightPulse = 0.0f;
+    highlightPulse += 0.05f; // Update pulse value for animation
+    if (highlightPulse > 6.28f)
+        highlightPulse = 0.0f;
+    
+    Shader* highlightShader = ResourceManager::GetInstance()->GetShader("highlight");
+    if (!highlightShader)
+        return;
+    
+    // Enable blending for transparent highlight effect
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    // Use the highlight shader
+    highlightShader->Use();
+    
+    // Set highlight color and pulse
+    highlightShader->SetVec4("highlightColor", glm::vec4(1.0f, 0.6f, 0.0f, 0.3f)); 
+    highlightShader->SetFloat("highlightPulse", highlightPulse);
+    
+    if (mesh)
+    {
+        mesh->Draw();
+    }
+    else if (model)
+    {
+        model->Draw();
+    }
+
+    glDisable(GL_BLEND);
 }
 
 void SceneObject::SetPosition(const glm::vec3& newPosition)

@@ -23,6 +23,7 @@ public:
     
     virtual void Update(float deltaTime);
     virtual void Draw();
+    virtual void DrawHighlight();
     
     // Transform functions
     void SetPosition(const glm::vec3& position);
@@ -51,9 +52,11 @@ public:
     
     Model* GetModel() const { return model; }
     void SetModel(Model* newModel) { model = newModel; mesh.reset(); }
-    
     Shader* GetShader() const { return shader; }
     void SetShader(Shader* newShader) { shader = newShader; }
+    
+    bool IsHighlighted() const { return highlighted; }
+    void SetHighlighted(bool isHighlighted) { highlighted = isHighlighted; }
     
     bool HasModel() const { return model != nullptr; }
     
@@ -67,10 +70,10 @@ protected:
     glm::vec3 scale = glm::vec3(1.0f);
     glm::mat4 transform = glm::mat4(1.0f);
     bool transformDirty = false;
-    
-    // Rendering properties
+      // Rendering properties
     Material material;
     std::unique_ptr<Mesh> mesh;
     Shader* shader = nullptr;
     Model* model = nullptr;
+    bool highlighted = false;
 };

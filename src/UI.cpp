@@ -658,16 +658,27 @@ void UI::RenderObjectProperties()
     }
     
     Scene* scene = app->GetScene();
-    
     // Object selection
     if (ImGui::BeginCombo("Select Object", selectedObject ? selectedObject->GetName().c_str() : "None"))
-    {
+    {  
         for (const auto& object : scene->GetObjects())
         {
             bool isSelected = (selectedObject == object.get());
             if (ImGui::Selectable(object->GetName().c_str(), isSelected))
             {
+                // Unhighlight previous selection
+                if (selectedObject && selectedObject->IsHighlighted())
+                {
+                    selectedObject->SetHighlighted(false);
+                }
+                
                 selectedObject = object.get();
+                
+                // Highlight new selection
+                if (selectedObject)
+                {
+                    selectedObject->SetHighlighted(true);
+                }
             }
             
             if (isSelected)

@@ -118,13 +118,21 @@ void Renderer::Render(Scene* scene, Camera* camera)
         
         // Update lighting model in shader
         shader->SetInt("lightingModel", static_cast<int>(lightingModel));
+          // Update lighting parameters
+        const auto& lights = scene->GetLights();
+        int numLights = static_cast<int>(lights.size());
         
-        // Update lighting parameters
-        for (const auto& light : scene->GetLights())
-        {
-            shader->SetVec3("lightPos", light.position);
-            shader->SetVec3("lightColor", light.color);
-            shader->SetFloat("lightIntensity", light.intensity);
+        // Set the number of lights
+        shader->SetInt("numLights", numLights);
+        
+        // Pass each light to the shader
+        for (int i = 0; i < numLights; i++) {
+            const auto& light = lights[i];
+            std::string prefix = "lights[" + std::to_string(i) + "].";
+            
+            shader->SetVec3(prefix + "position", light.position);
+            shader->SetVec3(prefix + "color", light.color);
+            shader->SetFloat(prefix + "intensity", light.intensity);
         }
         
         // Set camera position for specular calculations
@@ -425,14 +433,21 @@ void Renderer::RenderDeferred(Scene* scene, Camera* camera)
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
     lightingShader->SetInt("gAlbedoSpec", 2);
-    
-    // Set lighting properties
+      // Set lighting properties
     const auto& lights = scene->GetLights();
-    if (!lights.empty()) {
-        const auto& light = lights[0];  // Use first light for simplicity
-        lightingShader->SetVec3("lightPos", light.position);
-        lightingShader->SetVec3("lightColor", light.color);
-        lightingShader->SetFloat("lightIntensity", light.intensity);
+    int numLights = static_cast<int>(lights.size());
+    
+    // Set the number of lights
+    lightingShader->SetInt("numLights", numLights);
+    
+    // Pass each light to the shader
+    for (int i = 0; i < numLights; i++) {
+        const auto& light = lights[i];
+        std::string prefix = "lights[" + std::to_string(i) + "].";
+        
+        lightingShader->SetVec3(prefix + "position", light.position);
+        lightingShader->SetVec3(prefix + "color", light.color);
+        lightingShader->SetFloat(prefix + "intensity", light.intensity);
     }
     
     // Set camera position for specular calculations

@@ -8,6 +8,7 @@
 #include "Model.h"
 
 class Shader;
+class Camera;
 
 struct Material {
     glm::vec3 ambient = glm::vec3(0.1f, 0.1f, 0.1f);
@@ -23,7 +24,7 @@ public:
     
     virtual void Update(float deltaTime);
     virtual void Draw();
-    virtual void DrawHighlight();
+    virtual void DrawHighlight(Camera* camera);
     
     // Transform functions
     void SetPosition(const glm::vec3& position);

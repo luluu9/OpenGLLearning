@@ -144,24 +144,7 @@ void Renderer::Render(Scene* scene, Camera* camera)
         
         // Draw the object
         object->Draw();
-
-        if (object->IsHighlighted())
-        {
-            Shader* highlightShader = ResourceManager::GetInstance()->GetShader("highlight");
-            if (highlightShader)
-            {
-                highlightShader->Use();
-                
-                // Update transform matrices
-                glm::mat4 modelMatrix = object->GetTransform();
-                highlightShader->SetMat4("model", modelMatrix);
-                highlightShader->SetMat4("view", viewMatrix);
-                highlightShader->SetMat4("projection", projectionMatrix);
-                
-                // Draw the highlight
-                object->DrawHighlight();
-            }
-        }
+        object->DrawHighlight(camera);
     }
 }
 
@@ -477,7 +460,7 @@ void Renderer::RenderDeferred(Scene* scene, Camera* camera)
             highlightShader->SetMat4("projection", projectionMatrix);
             
             // Draw the highlight
-            object->DrawHighlight();
+            object->DrawHighlight(camera);
         }
     }
 }

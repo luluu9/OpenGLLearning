@@ -1,6 +1,7 @@
 #include "SceneObject.h"
 #include "Mesh.h"
 #include "Shader.h"
+#include "Camera.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/euler_angles.hpp>
 #include "ResourceManager.h"
@@ -33,7 +34,7 @@ void SceneObject::Draw()
     }
 }
 
-void SceneObject::DrawHighlight()
+void SceneObject::DrawHighlight(Camera* camera)
 {
     if (!visible || !highlighted)
         return;
@@ -57,6 +58,9 @@ void SceneObject::DrawHighlight()
     // Set highlight color and pulse
     highlightShader->SetVec4("highlightColor", glm::vec4(1.0f, 0.6f, 0.0f, 0.3f)); 
     highlightShader->SetFloat("highlightPulse", highlightPulse);
+    highlightShader->SetMat4("model", transform);
+    highlightShader->SetMat4("view", camera->GetViewMatrix());
+    highlightShader->SetMat4("projection", camera->GetProjectionMatrix());
     
     if (mesh)
     {

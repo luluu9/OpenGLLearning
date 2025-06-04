@@ -10,7 +10,7 @@ class Camera;
 enum class RenderMode {
     Solid,
     Wireframe,
-    Textured
+    Deferred
 };
 
 enum class LightingModel {
@@ -45,9 +45,27 @@ public:
     void EnableDepthTest(bool enable) { depthTestEnabled = enable; }
     bool IsDepthTestEnabled() const { return depthTestEnabled; }
     
+    // Methods for deferred rendering
+    void SetupDeferredRendering();
+    void CleanupDeferredRendering();
+    void RenderDeferred(Scene* scene, Camera* camera);
+    
 private:
     RenderMode renderMode = RenderMode::Solid;
     LightingModel lightingModel = LightingModel::Phong;
     glm::vec4 clearColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
     bool depthTestEnabled = true;
+    
+    // G-buffer objects for deferred rendering
+    bool deferredSetupComplete = false;
+    unsigned int gBuffer = 0;
+    unsigned int gPosition = 0;
+    unsigned int gNormal = 0;
+    unsigned int gAlbedoSpec = 0;
+    unsigned int gDepth = 0;
+    unsigned int quadVAO = 0;
+    unsigned int quadVBO = 0;
+    
+    // Create a quad for rendering the final lighting pass
+    void SetupScreenQuad();
 };

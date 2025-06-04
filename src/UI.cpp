@@ -252,9 +252,9 @@ void UI::RenderMainMenuBar()
                     if (ImGui::MenuItem("Wireframe", nullptr, isWireframe))
                         renderer->SetRenderMode(RenderMode::Wireframe);
                         
-                    bool isTextured = renderer->GetRenderMode() == RenderMode::Textured;
-                    if (ImGui::MenuItem("Textured", nullptr, isTextured))
-                        renderer->SetRenderMode(RenderMode::Textured);
+                    bool isDeferred = renderer->GetRenderMode() == RenderMode::Deferred;
+                    if (ImGui::MenuItem("Deferred", nullptr, isDeferred))
+                        renderer->SetRenderMode(RenderMode::Deferred);
                         
                     ImGui::EndMenu();
                 }

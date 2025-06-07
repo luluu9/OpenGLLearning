@@ -22,20 +22,25 @@ void Mesh::SetIndices(const std::vector<unsigned int>& newIndices)
     SetupMesh();
 }
 
-void Mesh::Draw() const
+void Mesh::Draw(RenderMode mode) const
 {
     if (VAO == 0 || vertices.empty())
         return;
     
     glBindVertexArray(VAO);
     
+    GLenum primitiveType = (mode == RenderMode::PATCHES) ? GL_PATCHES : GL_TRIANGLES;
+    if (mode == RenderMode::PATCHES) {
+        glPatchParameteri(GL_PATCH_VERTICES, 3);
+    }
+    
     if (!indices.empty())
     {
-        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
+        glDrawElements(primitiveType, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
     }
     else
     {
-        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertices.size()));
+        glDrawArrays(primitiveType, 0, static_cast<GLsizei>(vertices.size()));
     }
     
     glBindVertexArray(0);

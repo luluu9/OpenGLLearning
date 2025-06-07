@@ -52,7 +52,7 @@ bool Model::LoadFromFile(const std::string& path)
     return true;
 }
 
-void Model::Draw() const
+void Model::Draw(Mesh::RenderMode mode) const
 {
     if (!isLoaded) {
         std::cerr << "Model not loaded: " << filepath << std::endl;
@@ -62,7 +62,7 @@ void Model::Draw() const
     for (const auto& mesh : meshes)
     {
         if (mesh)
-            mesh->Draw();
+            mesh->Draw(mode);
     }
 }
 

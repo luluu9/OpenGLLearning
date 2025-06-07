@@ -361,3 +361,44 @@ const ResourceManager::ShaderInfo& ResourceManager::GetShaderInfo(const std::str
     }
     return emptyInfo;
 }
+
+Shader* ResourceManager::LoadShaderWithTessellation(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath, 
+                                            const std::string& tessControlPath, const std::string& tessEvalPath)
+{
+    auto existingShader = GetShader(name);
+    if (existingShader)
+    {
+        if (existingShader->LoadWithTessellationFromFile(vertexPath, fragmentPath, tessControlPath, tessEvalPath))
+        {
+            return existingShader;
+        }
+        else
+        {
+            std::cerr << "Failed to reload tessellation shader '" << name << "': " << existingShader->GetCompilationLog() << std::endl;
+            return nullptr;
+        }
+    }
+
+    auto shader = std::make_unique<Shader>();
+    shader->SetName(name);
+    if (shader->LoadWithTessellationFromFile(vertexPath, fragmentPath, tessControlPath, tessEvalPath))
+    {
+        Shader* rawPtr = shader.get();
+        shaders[name] = std::move(shader);
+        
+        ShaderInfo info;
+        info.name = name;
+        info.category = "tessellation";
+        info.vertexPath = vertexPath;
+        info.fragmentPath = fragmentPath;
+        info.description = "Tessellation shader for dynamic level-of-detail rendering";
+        shaderInfos[name] = info;
+        
+        return rawPtr;
+    }
+    else
+    {
+        std::cerr << "Failed to load tessellation shader '" << name << "': " << shader->GetCompilationLog() << std::endl;
+        return nullptr;
+    }
+}

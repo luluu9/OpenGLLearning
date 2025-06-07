@@ -23,7 +23,8 @@ public:
     virtual ~SceneObject();
     
     virtual void Update(float deltaTime);
-    virtual void Draw();
+    virtual void Draw(Mesh::RenderMode mode = Mesh::RenderMode::TRIANGLES);
+    
     virtual void DrawHighlight(Camera* camera);
     
     // Transform functions

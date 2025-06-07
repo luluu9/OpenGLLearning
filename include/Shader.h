@@ -8,10 +8,13 @@
 class Shader {
 public:
     Shader();
-    ~Shader();
-
+    ~Shader();    
     bool LoadFromFile(const std::string& vertexPath, const std::string& fragmentPath);
     bool LoadFromSource(const std::string& vertexSource, const std::string& fragmentSource);
+    bool LoadWithTessellationFromFile(const std::string& vertexPath, const std::string& fragmentPath,
+                                      const std::string& tessControlPath, const std::string& tessEvalPath);
+    bool LoadWithTessellationFromSource(const std::string& vertexSource, const std::string& fragmentSource,
+                                        const std::string& tessControlSource, const std::string& tessEvalSource);
     
     std::string GetName() const { return name; }
     void SetName(const std::string& newName) { name = newName; }
@@ -41,9 +44,11 @@ public:
 private:
     unsigned int id = 0;
     std::string name;
-    mutable std::unordered_map<std::string, int> uniformLocationCache;
+    mutable std::unordered_map<std::string, int> uniformLocationCache;    
     std::string compilationLog;
     
     bool CompileShader(const std::string& vertexSource, const std::string& fragmentSource);
+    bool CompileShaderWithTessellation(const std::string& vertexSource, const std::string& fragmentSource,
+                                      const std::string& tessControlSource, const std::string& tessEvalSource);
     unsigned int CompileShaderModule(unsigned int type, const std::string& source);
 };

@@ -24,6 +24,8 @@ public:
     // Shader management
     Shader* GetShader(const std::string& name);
     Shader* LoadShaderFromFile(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath);
+    Shader* LoadShaderWithTessellation(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath,
+                                     const std::string& tessControlPath, const std::string& tessEvalPath);
     Shader* LoadShaderFromSource(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource);
     void ReleaseShader(const std::string& name);
     void ReleaseAllShaders();

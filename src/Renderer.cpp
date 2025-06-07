@@ -49,7 +49,7 @@ void Renderer::BeginFrame()
         glEnable(GL_DEPTH_TEST);
     else
         glDisable(GL_DEPTH_TEST);
-          // Set render mode
+      // Set render mode
     switch (renderMode)
     {
     case RenderMode::Wireframe:
@@ -57,6 +57,8 @@ void Renderer::BeginFrame()
         break;
     case RenderMode::Solid:
     case RenderMode::Deferred:
+    case RenderMode::Tessellation:
+    case RenderMode::TessellationWithWireframe:
     default:
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         break;
@@ -67,7 +69,7 @@ void Renderer::Render(Scene* scene, Camera* camera)
 {
     if (!scene || !camera)
         return;
-
+    
     if (renderMode == RenderMode::Deferred) {
         Shader* gBufferShader = ResourceManager::GetInstance()->GetShader("Laboratory_IV/gbuffer");
         Shader* lightingShader = ResourceManager::GetInstance()->GetShader("Laboratory_IV/deferred_lighting");
@@ -94,6 +96,29 @@ void Renderer::Render(Scene* scene, Camera* camera)
             std::cerr << "Failed to load deferred shaders, continue using standard rendering." << std::endl;
         } else {
             RenderDeferred(scene, camera);
+            return;
+        }
+    }
+    else if (renderMode == RenderMode::Tessellation || renderMode == RenderMode::TessellationWithWireframe) {
+        // Check if tessellation shaders are loaded
+        Shader* tessShader = ResourceManager::GetInstance()->GetShader("tessellation");
+        
+        if (!tessShader) {
+            // Load tessellation shaders
+            std::cout << "Loading tessellation shaders..." << std::endl;            
+            tessShader = ResourceManager::GetInstance()->LoadShaderWithTessellation(
+                "tessellation",
+                "resources/shaders/tessellation/tessellation.vert",
+                "resources/shaders/tessellation/tessellation.frag",
+                "resources/shaders/tessellation/tessellation.tesc",
+                "resources/shaders/tessellation/tessellation.tese"
+            );
+        }
+        
+        if (!tessShader) {
+            std::cerr << "Failed to load tessellation shaders, falling back to standard rendering." << std::endl;
+        } else {
+            RenderWithTessellation(scene, camera);
             return;
         }
     }
@@ -187,8 +212,7 @@ void Renderer::RestoreAfterUIRendering()
         glEnable(GL_DEPTH_TEST);
     else
         glDisable(GL_DEPTH_TEST);
-    
-    // Restore polygon mode
+      // Restore polygon mode
     switch (renderMode)
     {
     case RenderMode::Wireframe:
@@ -196,6 +220,7 @@ void Renderer::RestoreAfterUIRendering()
         break;
     case RenderMode::Solid:
     case RenderMode::Deferred:
+    case RenderMode::Tessellation:
     default:
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         break;
@@ -351,6 +376,150 @@ void Renderer::CleanupDeferredRendering()
     deferredSetupComplete = false;
 }
 
+// Method to render the scene with tessellation
+void Renderer::RenderWithTessellation(Scene* scene, Camera* camera)
+{
+    std::cout << "DEBUG: Enter RenderWithTessellation" << std::endl;
+    if (!scene || !camera)
+        return;
+    
+    // Check if tessellation is supported
+    if (!IsTessellationSupported()) {
+        std::cerr << "Tessellation is not supported on this system. Falling back to standard rendering." << std::endl;
+        // Fall back to standard rendering
+        renderMode = RenderMode::Solid;
+        Render(scene, camera);
+        return;
+    }
+    
+    // Enable tessellation mode (wireframe optional for visualization)
+    if (renderMode == RenderMode::TessellationWithWireframe)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    else
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      // Get the tessellation shader
+    std::cout << "DEBUG: Getting tessellation shader" << std::endl;
+    Shader* tessellationShader = ResourceManager::GetInstance()->GetShader("tessellation");
+    if (!tessellationShader) {
+        std::cerr << "Error: Tessellation shader not found!" << std::endl;
+        return;
+    }
+    
+    // Activate tessellation shader
+    std::cout << "DEBUG: Activating shader" << std::endl;
+    tessellationShader->Use();
+    
+    // Get the view and projection matrices from the camera
+    glm::mat4 viewMatrix = camera->GetViewMatrix();
+    glm::mat4 projectionMatrix = camera->GetProjectionMatrix();
+    
+    // Check for OpenGL errors
+    GLenum err;
+    while((err = glGetError()) != GL_NO_ERROR) {
+        std::cerr << "OpenGL error before setting uniforms: " << std::hex << err << std::dec << std::endl;
+    }
+    
+    // Set tessellation parameters - use try-catch to prevent crashes from invalid uniforms
+    std::cout << "DEBUG: Setting tessellation parameters" << std::endl;
+    try {
+        tessellationShader->SetFloat("tessLevelOuter", tessellationLevelOuter);
+        tessellationShader->SetFloat("tessLevelInner", tessellationLevelInner);
+        tessellationShader->SetFloat("displaceAmount", displacementAmount);
+    } catch (const std::exception& e) {
+        std::cerr << "Error setting tessellation parameters: " << e.what() << std::endl;
+    }
+      // Update lighting parameters
+    std::cout << "DEBUG: Setting lighting parameters" << std::endl;
+    const auto& lights = scene->GetLights();
+    try {
+        if (!lights.empty()) {
+            const auto& light = lights[0]; // Use first light for simplicity
+            tessellationShader->SetVec3("lightPos", light.position);
+            tessellationShader->SetVec3("lightColor", light.color);
+            tessellationShader->SetFloat("lightIntensity", light.intensity);
+        }
+        
+        // Set camera position for specular calculations
+        tessellationShader->SetVec3("viewPos", camera->GetPosition());
+    } catch (const std::exception& e) {
+        std::cerr << "Error setting lighting parameters: " << e.what() << std::endl;
+    }
+    
+    // Check for OpenGL errors
+    while((err = glGetError()) != GL_NO_ERROR) {
+        std::cerr << "OpenGL error after setting uniforms: " << std::hex << err << std::dec << std::endl;
+    }    // Set view and projection matrices explicitly for debugging
+    glm::mat4 identityMatrix(1.0f);
+    tessellationShader->SetMat4("model", identityMatrix);
+    tessellationShader->SetMat4("view", camera->GetViewMatrix());
+    tessellationShader->SetMat4("projection", camera->GetProjectionMatrix());
+    
+    // Set some material parameters for testing
+    tessellationShader->SetVec3("material.ambient", glm::vec3(0.1f, 0.1f, 0.1f));
+    tessellationShader->SetVec3("material.diffuse", glm::vec3(0.8f, 0.8f, 0.8f));
+    tessellationShader->SetVec3("material.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+    tessellationShader->SetFloat("material.shininess", 32.0f);
+    
+    // Render a test object with tessellation
+    std::cout << "DEBUG: Begin rendering objects" << std::endl;
+      // Check for any OpenGL errors before continuing
+    while((err = glGetError()) != GL_NO_ERROR) {
+        std::cerr << "OpenGL error before simple rendering: " << std::hex << err << std::dec << std::endl;
+    }
+    
+
+    int objectCount = 0;
+    for (auto& object : scene->GetObjects())
+    {
+        if (!object->IsVisible())
+            continue;
+        
+        glm::mat4 modelMatrix = object->GetTransform();
+        tessellationShader->SetMat4("model", modelMatrix);
+        tessellationShader->SetMat4("view", viewMatrix);
+        tessellationShader->SetMat4("projection", projectionMatrix);
+        tessellationShader->SetVec3("material.ambient", object->GetMaterial().ambient);
+        tessellationShader->SetVec3("material.diffuse", object->GetMaterial().diffuse);
+        tessellationShader->SetVec3("material.specular", object->GetMaterial().specular);
+        tessellationShader->SetFloat("material.shininess", object->GetMaterial().shininess);
+          
+        //Set up patches for tessellation
+        //Tell OpenGL to interpret incoming vertices as patches of 3 vertices (triangles)
+        //glPatchParameteri(GL_PATCH_VERTICES, 3);
+        object->Draw(Mesh::RenderMode::PATCHES);
+        while((err = glGetError()) != GL_NO_ERROR) {
+            std::cerr << "OpenGL error after draw call: " << std::hex << err << std::dec << std::endl;
+        }
+                
+    }
+    
+    // Render highlighted objects (using normal highlighting)
+    std::cout << "DEBUG: Render highlighted objects" << std::endl;
+    for (auto& object : scene->GetObjects())
+    {
+        if (!object->IsVisible() || !object->IsHighlighted())
+            continue;
+            
+        Shader* highlightShader = ResourceManager::GetInstance()->GetShader("highlight");
+        if (highlightShader)
+        {
+            object->DrawHighlight(camera);
+        }
+    }
+    
+    std::cout << "DEBUG: Skipping normal rendering loop for debugging" << std::endl;
+        
+    // Check for any OpenGL errors at the end
+    while((err = glGetError()) != GL_NO_ERROR) {
+        std::cerr << "OpenGL error at end of tessellation rendering: " << std::hex << err << std::dec << std::endl;
+    }
+    
+    // Restore polygon mode
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    std::cout << "DEBUG: Exit RenderWithTessellation" << std::endl;
+
+}
+
 void Renderer::RenderDeferred(Scene* scene, Camera* camera)
 {
     if (!scene || !camera)
@@ -478,4 +647,23 @@ void Renderer::RenderDeferred(Scene* scene, Camera* camera)
             object->DrawHighlight(camera);
         }
     }
+}
+
+bool Renderer::IsTessellationSupported()
+{
+    int majorVersion, minorVersion;
+    glGetIntegerv(GL_MAJOR_VERSION, &majorVersion);
+    glGetIntegerv(GL_MINOR_VERSION, &minorVersion);
+    
+    // Tessellation shaders are available in OpenGL 4.0 and higher
+    bool supported = (majorVersion > 4) || (majorVersion == 4 && minorVersion >= 0);
+    
+    if (!supported) {
+        std::cerr << "Tessellation not supported: OpenGL version " << majorVersion << "." << minorVersion 
+                  << " detected. OpenGL 4.0+ required." << std::endl;
+    } else {
+        std::cout << "Tessellation supported: OpenGL version " << majorVersion << "." << minorVersion << std::endl;
+    }
+    
+    return supported;
 }

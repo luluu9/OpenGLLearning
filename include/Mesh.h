@@ -12,13 +12,18 @@ struct Vertex {
 
 class Mesh {
 public:
+    enum class RenderMode {
+        TRIANGLES,
+        PATCHES
+    };
+    
     Mesh();
     ~Mesh();
     
     void SetVertices(const std::vector<Vertex>& vertices);
     void SetIndices(const std::vector<unsigned int>& indices);
     
-    void Draw() const;
+    void Draw(RenderMode mode = RenderMode::TRIANGLES) const;
     
     // Accessors
     const std::vector<Vertex>& GetVertices() const { return vertices; }

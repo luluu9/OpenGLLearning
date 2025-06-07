@@ -26,7 +26,8 @@ public:
     ~Model();
     
     bool LoadFromFile(const std::string& path);
-    void Draw() const;
+    void Draw(Mesh::RenderMode mode = Mesh::RenderMode::TRIANGLES) const;
+    
     bool IsLoaded() const { return isLoaded; }
     const std::string& GetFilePath() const { return filepath; }
     

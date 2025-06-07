@@ -243,7 +243,7 @@ void UI::RenderMainMenuBar()
                 Renderer* renderer = app->GetRenderer();
                 
                 if (ImGui::BeginMenu("Render Mode"))
-                {
+                {                    
                     bool isSolid = renderer->GetRenderMode() == RenderMode::Solid;
                     if (ImGui::MenuItem("Solid", nullptr, isSolid))
                         renderer->SetRenderMode(RenderMode::Solid);
@@ -255,6 +255,14 @@ void UI::RenderMainMenuBar()
                     bool isDeferred = renderer->GetRenderMode() == RenderMode::Deferred;
                     if (ImGui::MenuItem("Deferred", nullptr, isDeferred))
                         renderer->SetRenderMode(RenderMode::Deferred);
+                        
+                    bool isTessellation = renderer->GetRenderMode() == RenderMode::Tessellation;
+                    if (ImGui::MenuItem("Tessellation", nullptr, isTessellation))
+                        renderer->SetRenderMode(RenderMode::Tessellation);
+
+                    bool isTessellationWireframe = renderer->GetRenderMode() == RenderMode::TessellationWithWireframe;
+                    if (ImGui::MenuItem("Tessellation with wireframe", nullptr, isTessellationWireframe))
+                        renderer->SetRenderMode(RenderMode::TessellationWithWireframe);
                         
                     ImGui::EndMenu();
                 }
@@ -862,11 +870,50 @@ void UI::RenderSceneSettings()
             
             ImGui::PopID();
         }
-        
-        if (ImGui::Button("Add Light"))
+          if (ImGui::Button("Add Light"))
         {
             Light newLight;
             scene->AddLight(newLight);
+        }
+    }
+    
+    ImGui::Separator();
+    
+    // Tessellation settings
+    if (ImGui::CollapsingHeader("Tessellation", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        // Only show controls when tessellation rendering mode is active
+        bool isTessellationMode = renderer->GetRenderMode() == RenderMode::Tessellation || 
+                                  renderer->GetRenderMode() == RenderMode::TessellationWithWireframe;
+        
+        if (isTessellationMode)
+        {
+            // Get current tessellation parameters
+            float tessLevelOuter = renderer->GetTessellationLevelOuter();
+            float tessLevelInner = renderer->GetTessellationLevelInner();
+            float displaceAmount = renderer->GetDisplacementAmount();
+            
+            // Create sliders for adjusting parameters
+            if (ImGui::SliderFloat("Outer Tessellation Level", &tessLevelOuter, 1.0f, 64.0f))
+                renderer->SetTessellationLevelOuter(tessLevelOuter);
+                
+            if (ImGui::SliderFloat("Inner Tessellation Level", &tessLevelInner, 1.0f, 64.0f))
+                renderer->SetTessellationLevelInner(tessLevelInner);
+                
+            if (ImGui::SliderFloat("Displacement Amount", &displaceAmount, 0.0f, 1.0f))
+                renderer->SetDisplacementAmount(displaceAmount);
+                
+            // Information about tessellation
+            ImGui::TextWrapped("Tessellation subdivides triangles to create more detailed geometry. "
+                             "Higher tessellation levels create more subdivisions.");
+        }
+        else
+        {
+            ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f), 
+                             "Select Tessellation render mode to enable these controls.");
+            
+            if (ImGui::Button("Switch to Tessellation Mode"))
+                renderer->SetRenderMode(RenderMode::Tessellation);
         }
     }
     

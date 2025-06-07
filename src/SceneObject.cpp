@@ -19,18 +19,18 @@ void SceneObject::Update(float deltaTime)
     // Derived classes can override to add custom behavior
 }
 
-void SceneObject::Draw()
+void SceneObject::Draw(Mesh::RenderMode mode)
 {
     if (!visible || !shader)
         return;
 
     if (mesh)
     {
-        mesh->Draw();
+        mesh->Draw(mode);
     }
     else if (model)
     {
-        model->Draw();
+        model->Draw(mode);
     }
 }
 

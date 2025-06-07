@@ -6,11 +6,14 @@
 
 class Scene;
 class Camera;
+class Shader;
 
 enum class RenderMode {
     Solid,
     Wireframe,
-    Deferred
+    Deferred,
+    Tessellation,
+    TessellationWithWireframe
 };
 
 enum class LightingModel {
@@ -50,13 +53,31 @@ public:
     void CleanupDeferredRendering();
     void RenderDeferred(Scene* scene, Camera* camera);
     
+    // Methods for tessellation control
+    void SetTessellationLevelOuter(float level) { tessellationLevelOuter = level; }
+    float GetTessellationLevelOuter() const { return tessellationLevelOuter; }
+    
+    void SetTessellationLevelInner(float level) { tessellationLevelInner = level; }
+    float GetTessellationLevelInner() const { return tessellationLevelInner; }
+    
+    void SetDisplacementAmount(float amount) { displacementAmount = amount; }
+    float GetDisplacementAmount() const { return displacementAmount; }
+    
+    bool IsTessellationSupported();
+
 private:
+    // Rendering options
     RenderMode renderMode = RenderMode::Solid;
     LightingModel lightingModel = LightingModel::Phong;
     glm::vec4 clearColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
     bool depthTestEnabled = true;
     
-    // G-buffer objects for deferred rendering
+    // Tessellation control parameters
+    float tessellationLevelOuter = 4.0f;
+    float tessellationLevelInner = 4.0f;
+    float displacementAmount = 0.3f;
+    
+    // Screen-space quad for deferred rendering
     bool deferredSetupComplete = false;
     unsigned int gBuffer = 0;
     unsigned int gPosition = 0;
@@ -66,6 +87,6 @@ private:
     unsigned int quadVAO = 0;
     unsigned int quadVBO = 0;
     
-    // Create a quad for rendering the final lighting pass
     void SetupScreenQuad();
+    void RenderWithTessellation(Scene* scene, Camera* camera);
 };

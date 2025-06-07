@@ -17,10 +17,8 @@ struct Light {
 uniform Light lights[MAX_LIGHTS];
 uniform int numLights;
 uniform float time;
-
 uniform vec3 viewPos;
 
-// Material properties
 struct Material {
     vec3 ambient;
     vec3 diffuse;
@@ -37,7 +35,7 @@ void main()
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 diffuse = vec3(0.0);
     vec3 specular = vec3(0.0);
-    
+
     for (int i = 0; i < numLights && i < MAX_LIGHTS; i++) {
         vec3 lightDir = normalize(lights[i].position - FragPos);
         float diff = max(dot(norm, lightDir), 0.0);
@@ -49,7 +47,7 @@ void main()
         float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
         specular += specularStrength * spec * material.specular * lights[i].color * lights[i].intensity * attenuation;
     }
-    
+
     vec3 result = ambient + diffuse + specular;
     FragColor = vec4(result, 1.0);
 }

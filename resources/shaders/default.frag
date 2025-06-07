@@ -34,18 +34,11 @@ uniform int lightingModel;
 
 void main()
 {
-    // Normalize normal vector
     vec3 norm = normalize(Normal);
-    
-    // Calculate ambient component
     vec3 ambient = material.ambient;
-    
-    // Variable to store the final color result
     vec3 result = vec3(0.0);
-    
-    if (lightingModel == 0) // Flat lighting
+    if (lightingModel == 0)
     {
-        // Initialize lighting results
         vec3 diffuse = vec3(0.0);
         
         // Process each light

@@ -22,21 +22,14 @@ const float WAVE_SPEED = 1.0;
 
 void main()
 {
-    // Calculate baseline vertex position
     vec4 modelPos = model * vec4(aPos, 1.0);
     vs_out.FragPos = vec3(modelPos);
-    
-    // Calculate normal and UV
     vs_out.Normal = transpose(inverse(mat3(model))) * aNormal;
     vs_out.TexCoord = aTexCoord;
-
-    // Apply wave displacement along y-axis using constants
     float displacement = sin(modelPos.x + time * WAVE_SPEED) * 
                         cos(modelPos.z + time * WAVE_SPEED) * 
                         WAVE_AMPLITUDE;
     vs_out.WaveDisplacement = displacement;
     modelPos.y += displacement;
-    
-    // Calculate final position with projection
     gl_Position = projection * view * modelPos;
 }

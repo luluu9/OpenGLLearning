@@ -14,15 +14,8 @@ out vec2 TexCoord;
 
 void main()
 {
-    // Calculate fragment position in world space
     FragPos = vec3(model * vec4(aPos, 1.0));
-    
-    // Calculate normal in world space (excluding non-uniform scaling)
     Normal = mat3(transpose(inverse(model))) * aNormal;
-    
-    // Pass texture coordinates to fragment shader
     TexCoord = aTexCoord;
-    
-    // Calculate final position
     gl_Position = projection * view * vec4(FragPos, 1.0);
 }

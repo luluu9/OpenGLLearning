@@ -8,7 +8,6 @@ in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoord;
 
-// Material properties
 struct Material {
     vec3 ambient;
     vec3 diffuse;
@@ -19,13 +18,8 @@ uniform Material material;
 
 void main()
 {
-    // Store position in world space
     gPosition = FragPos;
-    
-    // Store the normalized normal
     gNormal = normalize(Normal);
-    
-    // Store the diffuse color in RGB and specular intensity in A
     gAlbedoSpec.rgb = material.diffuse;
-    gAlbedoSpec.a = material.shininess / 256.0; // Normalize shininess to 0-1 range
+    gAlbedoSpec.a = material.shininess / 256.0;
 }

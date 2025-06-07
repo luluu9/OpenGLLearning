@@ -17,10 +17,8 @@ void main()
 {
     // Slightly enlarge the model to make it slightly bigger than the original
     vec3 scaled_pos = aPos * 1.02;
-    
     FragPos = vec3(model * vec4(scaled_pos, 1.0));
     Normal = mat3(transpose(inverse(model))) * aNormal;
     TexCoords = aTexCoords;
-    
     gl_Position = projection * view * vec4(FragPos, 1.0);
 }

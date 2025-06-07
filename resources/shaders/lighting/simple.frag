@@ -18,7 +18,6 @@ uniform Light lights[MAX_LIGHTS];
 uniform int numLights;
 uniform float time;
 
-// Material properties
 struct Material {
     vec3 ambient;
     vec3 diffuse;

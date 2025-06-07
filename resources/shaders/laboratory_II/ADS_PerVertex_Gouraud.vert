@@ -39,66 +39,33 @@ uniform float time; // Global time for animations
 
 void main()
 {
-    // Transform vertex position to world space
     vec3 worldPos = vec3(model * vec4(aPos, 1.0));
-    
-    // Transform normal to world space and normalize
     vec3 worldNormal = normalize(mat3(transpose(inverse(model))) * aNormal);
-    
-    // Calculate view matrix * model matrix (for eye space transformation)
     mat4 viewModel = view * model;
-    
-    // Transform position to eye space
     vec4 eyePosition = viewModel * vec4(aPos, 1.0);
     vec3 eyePositionVec3 = eyePosition.xyz;
-    
-    // Transform normal to eye space and normalize
     vec3 eyeNormal = normalize(mat3(transpose(inverse(viewModel))) * aNormal);
-    
-    // Initialize lighting components
-    vec3 ambientColor = vec3(0.1) * material.ambient; // Base ambient
+    vec3 ambientColor = vec3(0.1) * material.ambient;
     vec3 diffuseColor = vec3(0.0);
     vec3 specularColor = vec3(0.0);
-    
-    // Process all lights
+
     for (int i = 0; i < numLights && i < MAX_LIGHTS; i++) {
-        // Transform light position to eye space
         vec3 eyeLightPos = vec3(view * vec4(lights[i].position, 1.0));
-        
-        // Calculate light vector in eye space
         vec3 lightVector = normalize(eyeLightPos - eyePositionVec3);
-        
-        // Calculate Lambert diffuse term
         float diffuseFactor = max(dot(eyeNormal, lightVector), 0.0);
-        
-        // Calculate light attenuation based on distance
         float distance = length(eyeLightPos - eyePositionVec3);
         float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * distance * distance);
-        
-        // Add diffuse contribution from this light
         diffuseColor += diffuseFactor * material.diffuse * lights[i].color * attenuation * lights[i].intensity;
-          // Only calculate specular if diffuse factor is > 0
+
         if (diffuseFactor > 0.0) {
-            // Calculate view vector (from vertex to eye, which is at origin in eye space)
             vec3 viewVector = normalize(-eyePositionVec3);
-            
-            // Calculate reflection vector
             vec3 reflectionVector = reflect(-lightVector, eyeNormal);
-            
-            // Calculate specular factor
             float specularFactor = pow(max(dot(reflectionVector, viewVector), 0.0), material.shininess);
-            
-            // Add specular contribution from this light
             specularColor += specularFactor * material.specular * lights[i].color * attenuation * lights[i].intensity;
         }
     }
-    
-    // Set output color with all components
+
     vColor = vec4(ambientColor + diffuseColor + specularColor, 1.0);
-    
-    // Pass texture coordinates
     TexCoords = aTexCoords;
-    
-    // Transform vertex to clip space
     gl_Position = projection * view * vec4(worldPos, 1.0);
 }

@@ -1,0 +1,1019 @@
+{
+    "lights": [
+        {
+            "color": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "intensity": 2.0,
+            "position": [
+                5.0,
+                5.0,
+                5.0
+            ]
+        }
+    ],
+    "objects": [
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Cube_1",
+            "objectType": "primitive",
+            "position": [
+                -4.0,
+                0.0,
+                -4.0
+            ],
+            "primitiveType": "Cube",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Sphere_2",
+            "objectType": "primitive",
+            "position": [
+                -2.0,
+                0.0,
+                -4.0
+            ],
+            "primitiveType": "Sphere",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Cylinder_3",
+            "objectType": "primitive",
+            "position": [
+                0.0,
+                0.0,
+                -4.0
+            ],
+            "primitiveType": "Cylinder",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Cone_4",
+            "objectType": "primitive",
+            "position": [
+                2.0,
+                0.0,
+                -4.0
+            ],
+            "primitiveType": "Cone",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Plane_5",
+            "objectType": "primitive",
+            "position": [
+                4.0,
+                0.0,
+                -4.0
+            ],
+            "primitiveType": "Plane",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Cube_6",
+            "objectType": "primitive",
+            "position": [
+                -4.0,
+                0.0,
+                -2.0
+            ],
+            "primitiveType": "Cube",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Sphere_7",
+            "objectType": "primitive",
+            "position": [
+                -2.0,
+                0.0,
+                -2.0
+            ],
+            "primitiveType": "Sphere",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Cylinder_8",
+            "objectType": "primitive",
+            "position": [
+                0.0,
+                0.0,
+                -2.0
+            ],
+            "primitiveType": "Cylinder",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Cone_9",
+            "objectType": "primitive",
+            "position": [
+                2.0,
+                0.0,
+                -2.0
+            ],
+            "primitiveType": "Cone",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Plane_10",
+            "objectType": "primitive",
+            "position": [
+                4.0,
+                0.0,
+                -2.0
+            ],
+            "primitiveType": "Plane",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Cube_11",
+            "objectType": "primitive",
+            "position": [
+                -4.0,
+                0.0,
+                0.0
+            ],
+            "primitiveType": "Cube",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Sphere_12",
+            "objectType": "primitive",
+            "position": [
+                -2.0,
+                0.0,
+                0.0
+            ],
+            "primitiveType": "Sphere",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Cylinder_13",
+            "objectType": "primitive",
+            "position": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "primitiveType": "Cylinder",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Cone_14",
+            "objectType": "primitive",
+            "position": [
+                2.0,
+                0.0,
+                0.0
+            ],
+            "primitiveType": "Cone",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Plane_15",
+            "objectType": "primitive",
+            "position": [
+                4.0,
+                0.0,
+                0.0
+            ],
+            "primitiveType": "Plane",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Cube_16",
+            "objectType": "primitive",
+            "position": [
+                -4.0,
+                0.0,
+                2.0
+            ],
+            "primitiveType": "Cube",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Sphere_17",
+            "objectType": "primitive",
+            "position": [
+                -2.0,
+                0.0,
+                2.0
+            ],
+            "primitiveType": "Sphere",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Cylinder_18",
+            "objectType": "primitive",
+            "position": [
+                0.0,
+                0.0,
+                2.0
+            ],
+            "primitiveType": "Cylinder",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Cone_19",
+            "objectType": "primitive",
+            "position": [
+                2.0,
+                0.0,
+                2.0
+            ],
+            "primitiveType": "Cone",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Plane_20",
+            "objectType": "primitive",
+            "position": [
+                4.0,
+                0.0,
+                2.0
+            ],
+            "primitiveType": "Plane",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Cube_21",
+            "objectType": "primitive",
+            "position": [
+                -4.0,
+                0.0,
+                4.0
+            ],
+            "primitiveType": "Cube",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Sphere_22",
+            "objectType": "primitive",
+            "position": [
+                -2.0,
+                0.0,
+                4.0
+            ],
+            "primitiveType": "Sphere",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Cylinder_23",
+            "objectType": "primitive",
+            "position": [
+                0.0,
+                0.0,
+                4.0
+            ],
+            "primitiveType": "Cylinder",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Cone_24",
+            "objectType": "primitive",
+            "position": [
+                2.0,
+                0.0,
+                4.0
+            ],
+            "primitiveType": "Cone",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        },
+        {
+            "material": {
+                "ambient": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "diffuse": [
+                    0.699999988079071,
+                    0.699999988079071,
+                    0.699999988079071
+                ],
+                "shininess": 32.0,
+                "specular": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "name": "Plane_25",
+            "objectType": "primitive",
+            "position": [
+                4.0,
+                0.0,
+                4.0
+            ],
+            "primitiveType": "Plane",
+            "rotation": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "shader": "default",
+            "visible": true
+        }
+    ]
+}

@@ -23,20 +23,16 @@ bool Shader::LoadFromFile(const std::string& vertexPath, const std::string& frag
     fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     
     try {
-        // Open files
         vShaderFile.open(vertexPath);
         fShaderFile.open(fragmentPath);
         
-        // Read file contents into streams
         std::stringstream vShaderStream, fShaderStream;
         vShaderStream << vShaderFile.rdbuf();
         fShaderStream << fShaderFile.rdbuf();
         
-        // Close file handlers
         vShaderFile.close();
         fShaderFile.close();
         
-        // Convert stream into string
         vertexCode = vShaderStream.str();
         fragmentCode = fShaderStream.str();
     }
@@ -87,7 +83,6 @@ bool Shader::CompileShader(const std::string& vertexSource, const std::string& f
         return false;
     }
     
-    // Create shader program
     id = glCreateProgram();
     glAttachShader(id, vertexShader);
     glAttachShader(id, fragmentShader);
@@ -154,26 +149,22 @@ bool Shader::LoadWithTessellationFromFile(const std::string& vertexPath, const s
     teShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     
     try {
-        // Open files
         vShaderFile.open(vertexPath);
         fShaderFile.open(fragmentPath);
         tcShaderFile.open(tessControlPath);
         teShaderFile.open(tessEvalPath);
         
-        // Read file contents into streams
         std::stringstream vShaderStream, fShaderStream, tcShaderStream, teShaderStream;
         vShaderStream << vShaderFile.rdbuf();
         fShaderStream << fShaderFile.rdbuf();
         tcShaderStream << tcShaderFile.rdbuf();
         teShaderStream << teShaderFile.rdbuf();
         
-        // Close file handlers
         vShaderFile.close();
         fShaderFile.close();
         tcShaderFile.close();
         teShaderFile.close();
         
-        // Convert stream into string
         vertexCode = vShaderStream.str();
         fragmentCode = fShaderStream.str();
         tessControlCode = tcShaderStream.str();
@@ -228,7 +219,6 @@ bool Shader::CompileShaderWithTessellation(const std::string& vertexSource, cons
         return false;
     }
     
-    // Create shader program
     id = glCreateProgram();
     glAttachShader(id, vertexShader);
     glAttachShader(id, tessControlShader);
@@ -270,12 +260,8 @@ int Shader::GetUniformLocation(const std::string& name) const
     if (uniformLocationCache.find(name) != uniformLocationCache.end())
         return uniformLocationCache[name];
         
-    // Get the location from OpenGL
     int location = glGetUniformLocation(id, name.c_str());
-    
-    // Warn if uniform not found (but don't error, as it might be unused by the shader)
     if (location == -1) {
-        // Only log if we're not checking for optional uniforms
         if (name != "lightPos" && name != "lightColor" && name != "lightIntensity") {
             std::cerr << "Warning: Uniform '" << name << "' not found in shader " << this->name << std::endl;
         }

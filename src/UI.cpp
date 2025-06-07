@@ -16,7 +16,7 @@
 #include <sstream>
 #include <filesystem>
 
-// Windows file dialog includes
+// Windows file dialog
 #include <Windows.h>
 #include <commdlg.h>
 #include <direct.h>
@@ -42,11 +42,7 @@ bool UI::Initialize(GLFWwindow* newWindow)
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-    
-    // Setup Dear ImGui style
     ImGui::StyleColorsDark();
-        
-    // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
     
@@ -62,7 +58,6 @@ void UI::Shutdown()
 
 void UI::Update()
 {
-    // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
@@ -76,18 +71,15 @@ void UI::Update()
     frameTimes[frameTimeIndex] = deltaTime;
     frameTimeIndex = (frameTimeIndex + 1) % IM_ARRAYSIZE(frameTimes);
     
-    // Calculate average frame time
     frameTimeAccumulator += deltaTime;
     frameCount++;
-    
-    if (frameTimeAccumulator >= 0.5f) // Update average every half second
+    if (frameTimeAccumulator >= 0.5f) // Update every 500ms
     {
         averageFrameTime = frameTimeAccumulator / frameCount;
         frameTimeAccumulator = 0.0f;
         frameCount = 0;
     }
 
-    // Render ImGui components
     RenderMainMenuBar();
     
     if (showShaderEditor)
@@ -133,7 +125,6 @@ void UI::RenderMainMenuBar()
             
             if (ImGui::MenuItem("Open Scene", "Ctrl+O"))
             {
-                // Show file dialog to open scene
                 std::string filepath = OpenFileDialog("JSON Scene Files\0*.json\0All Files\0*.*\0");
                 if (!filepath.empty() && onSceneLoad)
                 {
@@ -144,7 +135,6 @@ void UI::RenderMainMenuBar()
             
             if (ImGui::MenuItem("Save Scene", "Ctrl+S"))
             {
-                // Show file dialog to save scene
                 std::string filepath = SaveFileDialog("JSON Scene Files\0*.json\0All Files\0*.*\0");
                 if (!filepath.empty() && onSceneSave)
                 {
@@ -296,7 +286,6 @@ void UI::RenderMainMenuBar()
 
 void UI::RenderShaderEditor()
 {
-    // Set shader editor position at top-right corner
     static bool firstShown = true;
     if (firstShown && showShaderEditor)
     {
@@ -304,7 +293,7 @@ void UI::RenderShaderEditor()
         ImVec2 workPos = viewport->WorkPos;
         ImVec2 workSize = viewport->WorkSize;
         float windowWidth = 600.0f;
-        float windowHeight = workSize.y * 0.5f; // 50% of window height
+        float windowHeight = workSize.y * 0.5f;
         
         ImGui::SetNextWindowPos(
             ImVec2(workPos.x + workSize.x - windowWidth - panelMargin, workPos.y + panelMargin), 
@@ -316,7 +305,6 @@ void UI::RenderShaderEditor()
     
     ImGui::Begin("Shader Editor", &showShaderEditor);
     
-    // Show a notice if no object is selected
     if (!selectedObject)
     {
         ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.5f, 1.0f), 
@@ -324,7 +312,6 @@ void UI::RenderShaderEditor()
         ImGui::Separator();
     }
     
-    // Show compilation status messages
     if (!compilationMessage.empty())
     {
         if (compilationSuccessful)
@@ -341,13 +328,11 @@ void UI::RenderShaderEditor()
     // Tab bar for switching between editor and shader library
     if (ImGui::BeginTabBar("ShaderEditorTabs"))
     {
-        // Custom Shader Editor Tab
         if (ImGui::BeginTabItem("Shader Editor"))
         {
             static bool firstTime = true;
             if (firstTime)
             {
-                // Load default shaders
                 std::ifstream vertFile("resources/shaders/default.vert");
                 if (vertFile.is_open())
                 {
@@ -368,14 +353,10 @@ void UI::RenderShaderEditor()
                 
                 firstTime = false;
             }
-            
-            // Switch to the editor view
             useShaderLibrary = false;
-            
             ImGui::EndTabItem();
         }
         
-        // Shader Library Tab
         if (ImGui::BeginTabItem("Shader Library"))
         {
             // Ensure we have the latest shaders
@@ -386,21 +367,19 @@ void UI::RenderShaderEditor()
             
             // Switch to the library view
             useShaderLibrary = true;
-            
             ImGui::EndTabItem();
         }
         
         ImGui::EndTabBar();
     }
-      // Only show the editor content if we're not in library mode
+
+    // Only show the editor content if we're not in library mode
     if (!useShaderLibrary)
     {
-        // Set up some reasonable sizes for the editor
         ImVec2 size = ImGui::GetContentRegionAvail();
         size.y = size.y / 2.0f - 45.0f;
     
         ImGui::Text("Vertex Shader");
-        // Use InputTextMultiline with a callback that properly handles std::string
         if (ImGui::InputTextMultiline("##VertexShader", 
                                     const_cast<char*>(vertexShaderSource.data()), 
                                     vertexShaderSource.capacity() + 1, 
@@ -420,7 +399,6 @@ void UI::RenderShaderEditor()
         }
         
         ImGui::Text("Fragment Shader");
-        // Use InputTextMultiline with a callback that properly handles std::string
         if (ImGui::InputTextMultiline("##FragmentShader", 
                                     const_cast<char*>(fragmentShaderSource.data()), 
                                     fragmentShaderSource.capacity() + 1, 
@@ -439,7 +417,6 @@ void UI::RenderShaderEditor()
             shaderModified = true;
         }
         
-        // Show status indicator if the shader has been modified
         if (shaderModified)
         {
             ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.0f, 1.0f), "Shader modified - Click 'Compile Shader' to apply changes");
@@ -458,7 +435,6 @@ void UI::RenderShaderEditor()
                 Shader* shader = selectedObject->GetShader();
                 if (shader)
                 {
-                    // Try to compile the shader
                     bool success = onCompileShader(shader, vertexShaderSource, fragmentShaderSource);
                     if (success)
                     {
@@ -487,7 +463,6 @@ void UI::RenderShaderEditor()
         ImGui::SameLine();
         if (ImGui::Button("Reset to Default"))
         {
-            // Load default shaders again
             std::ifstream vertFile("resources/shaders/default.vert");
             if (vertFile.is_open())
             {
@@ -632,7 +607,6 @@ void UI::RenderShaderEditor()
                 
                 if (ImGui::IsItemHovered())
                 {
-                    // Get the actual description from ShaderInfo instead of the category
                     auto it = resourceManager->GetShaderInfo(shaderName);
                     if (!it.description.empty())
                     {
@@ -656,7 +630,6 @@ void UI::RenderShaderEditor()
 
 void UI::RenderObjectProperties()
 {
-    // Position the Object Properties panel below the Shader Editor, taking up left half
     static bool firstShown = true;
     if (firstShown && showObjectProperties)
     {
@@ -664,11 +637,10 @@ void UI::RenderObjectProperties()
         ImVec2 workPos = viewport->WorkPos;
         ImVec2 workSize = viewport->WorkSize;
         
-        // Calculate position based on Shader Editor position (top-right)
         float shaderEditorWidth = 600.0f;
         float shaderEditorHeight = workSize.y * 0.5f;
-        float windowWidth = shaderEditorWidth / 2.0f; // Half of shader editor width
-        float windowHeight = workSize.y * 0.45f; // Fill remaining height with some padding
+        float windowWidth = shaderEditorWidth / 2.0f;
+        float windowHeight = workSize.y * 0.45f;
         
         // Position below shader editor, on the left half
         ImGui::SetNextWindowPos(
@@ -690,7 +662,6 @@ void UI::RenderObjectProperties()
     }
     
     Scene* scene = app->GetScene();
-    // Object selection
     if (ImGui::BeginCombo("Select Object", selectedObject ? selectedObject->GetName().c_str() : "None"))
     {  
         for (const auto& object : scene->GetObjects())
@@ -808,13 +779,11 @@ void UI::RenderSceneSettings()
         ImVec2 workPos = viewport->WorkPos;
         ImVec2 workSize = viewport->WorkSize;
         
-        // Calculate position based on Shader Editor position (top-right)
         float shaderEditorWidth = 600.0f;
         float shaderEditorHeight = workSize.y * 0.5f;
-        float windowWidth = shaderEditorWidth / 2.0f; // Half of shader editor width
-        float windowHeight = workSize.y * 0.45f; // Fill remaining height with some padding
+        float windowWidth = shaderEditorWidth / 2.0f; 
+        float windowHeight = workSize.y * 0.45f;
         
-        // Position below shader editor, on the right half
         ImGui::SetNextWindowPos(
             ImVec2(workPos.x + workSize.x - windowWidth - panelMargin, workPos.y + shaderEditorHeight + panelMargin), 
             ImGuiCond_FirstUseEver
@@ -835,8 +804,6 @@ void UI::RenderSceneSettings()
     
     Scene* scene = app->GetScene();
     Renderer* renderer = app->GetRenderer();
-    
-    // Clear color
     glm::vec4 clearColor = renderer->GetClearColor();
     if (ImGui::ColorEdit3("Background Color", &clearColor[0]))
     {
@@ -888,12 +855,10 @@ void UI::RenderSceneSettings()
         
         if (isTessellationMode)
         {
-            // Get current tessellation parameters
             float tessLevelOuter = renderer->GetTessellationLevelOuter();
             float tessLevelInner = renderer->GetTessellationLevelInner();
             float displaceAmount = renderer->GetDisplacementAmount();
             
-            // Create sliders for adjusting parameters
             if (ImGui::SliderFloat("Outer Tessellation Level", &tessLevelOuter, 1.0f, 64.0f))
                 renderer->SetTessellationLevelOuter(tessLevelOuter);
                 
@@ -903,7 +868,6 @@ void UI::RenderSceneSettings()
             if (ImGui::SliderFloat("Displacement Amount", &displaceAmount, 0.0f, 1.0f))
                 renderer->SetDisplacementAmount(displaceAmount);
                 
-            // Information about tessellation
             ImGui::TextWrapped("Tessellation subdivides triangles to create more detailed geometry. "
                              "Higher tessellation levels create more subdivisions.");
         }
@@ -1014,7 +978,6 @@ std::string UI::OpenFileDialog(const char* filter)
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
     
-    // Get the current working directory
     char currentDir[MAX_PATH];
     _getcwd(currentDir, MAX_PATH);
 
@@ -1047,7 +1010,6 @@ std::string UI::SaveFileDialog(const char* filter)
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
     
-    // Get the current working directory
     char currentDir[MAX_PATH];
     _getcwd(currentDir, MAX_PATH);
 
@@ -1088,7 +1050,6 @@ std::string UI::OpenModelDialog()
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
     
-    // Get the current working directory
     char currentDir[MAX_PATH];
     _getcwd(currentDir, MAX_PATH);
 

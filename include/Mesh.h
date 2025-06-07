@@ -25,7 +25,6 @@ public:
     
     void Draw(RenderMode mode = RenderMode::TRIANGLES) const;
     
-    // Accessors
     const std::vector<Vertex>& GetVertices() const { return vertices; }
     const std::vector<unsigned int>& GetIndices() const { return indices; }
     

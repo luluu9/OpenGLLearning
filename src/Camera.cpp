@@ -62,7 +62,7 @@ void Camera::ProcessInput(GLFWwindow* window, float deltaTime, bool ignoreKeyboa
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
     {
         float xoffset = static_cast<float>(xpos - lastX);
-        float yoffset = static_cast<float>(lastY - ypos); // Reversed since y-coordinates range from bottom to top
+        float yoffset = static_cast<float>(lastY - ypos);
         
         ProcessMouseMovement(xoffset, yoffset);
     }
@@ -92,14 +92,12 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset)
     newFront.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     
     front = glm::normalize(newFront);
-    // Recalculate right and up vectors
     right = glm::normalize(glm::cross(front, worldUp));
     up = glm::normalize(glm::cross(right, front));
 }
 
 void Camera::ProcessMouseScroll(float yoffset)
 {
-    // Adjust fov for zoom effect
     fov -= yoffset;
     fov = std::clamp(fov, 1.0f, 90.0f);
     

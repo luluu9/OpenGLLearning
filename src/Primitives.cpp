@@ -298,10 +298,7 @@ std::unique_ptr<Mesh> Primitives::CreateCone(float radius, float height, unsigne
 
 std::unique_ptr<SceneObject> Primitives::CreatePrimitiveObject(const std::string& type, const std::string& name)
 {
-    // Create a new scene object with the specified name
     auto object = std::make_unique<SceneObject>(name);
-    
-    // Create a mesh based on the primitive type
     std::unique_ptr<Mesh> mesh;
     
     if (type == "Cube")

@@ -12,10 +12,7 @@
 
 int main()
 {
-    // Create application instance
     Application app("OpenGL Learning", 1920, 1080);
-    
-    // Initialize application
     if (!app.Initialize())
     {
         std::cerr << "Failed to initialize application" << std::endl;
@@ -54,7 +51,6 @@ int main()
             return;
         }
         
-        // Get the currently selected object from the UI
         SceneObject* selectedObject = app->GetUI()->GetSelectedObject();
         if (selectedObject)
         {
@@ -79,7 +75,6 @@ int main()
         app->GetScene()->SaveToFile(filepath);
     });
     
-    // Add model import callback
     app.GetUI()->SetOnImportModelCallback([](const std::string& filepath) {
         Application* app = Application::GetInstance();
         if (!app || !app->GetScene())
@@ -133,7 +128,6 @@ int main()
     sphere->SetPosition(glm::vec3(1.5f, 0.0f, 0.0f));
     app.GetScene()->AddObject(std::move(sphere));
     
-    // Run the application
     app.Run();
     
     return 0;

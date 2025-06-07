@@ -35,9 +35,7 @@ public:
     glm::vec3 GetPosition() const { return position; }
     glm::vec3 GetRotation() const { return rotation; }
     glm::vec3 GetScale() const { return scale; }
-    
     glm::mat4 GetTransform();
-    void SetTransform(const glm::mat4& transform);
     
     // Getters and setters
     const std::string& GetName() const { return name; }

@@ -21,20 +21,16 @@ Application::~Application()
 
 bool Application::Initialize()
 {
-    // Initialize GLFW
     if (!glfwInit())
     {
         std::cerr << "Failed to initialize GLFW" << std::endl;
         return false;
     }
-
-    // Configure GLFW
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_SAMPLES, 4);
 
-    // Create window
     window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
     if (!window)
     {
@@ -42,8 +38,6 @@ bool Application::Initialize()
         glfwTerminate();
         return false;
     }
-
-    // Make the window's context current
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
 
@@ -55,14 +49,11 @@ bool Application::Initialize()
         return false;
     }
 
-    // Create camera
     camera = std::make_unique<Camera>(45.0f, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
     camera->SetPosition(glm::vec3(0.0f, 0.0f, 5.0f));
 
-    // Initialize Scene
     scene = std::make_unique<Scene>();
 
-    // Initialize UI
     ui = std::make_unique<UI>();
     if (!ui->Initialize(window))
     {
@@ -70,12 +61,10 @@ bool Application::Initialize()
         return false;
     }
     
-    // Load all shaders from the resources directory
     ResourceManager* resourceManager = ResourceManager::GetInstance();
     resourceManager->LoadAllShadersFromDirectory("resources/shaders");
     ui->RefreshShaderLibrary();
 
-    // Setup resize callback
     glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height) {
         glViewport(0, 0, width, height);
         Application* app = Application::GetInstance();
@@ -96,35 +85,23 @@ void Application::Run()
     // Main loop
     while (running && !glfwWindowShouldClose(window))
     {
-        // Calculate delta time
         float currentTime = static_cast<float>(glfwGetTime());
         deltaTime = currentTime - lastFrameTime;
         lastFrameTime = currentTime;
 
-        // Process input
         ProcessInput();
-
-        // Update the scene
         Update();
-
-        // Render the scene
         Render();
-
-        // Swap front and back buffers
         glfwSwapBuffers(window);
-
-        // Poll for and process events
         glfwPollEvents();
     }
 }
 
 void Application::ProcessInput()
 {
-    // Check if ESC was pressed
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         running = false;
 
-    // Process camera input only if UI is not capturing keyboard input
     if (camera && ui)
     {
         camera->ProcessInput(window, deltaTime, ui->IsCapturingKeyboard(), ui->IsCapturingMouse());
@@ -149,13 +126,8 @@ void Application::Render()
         
         if (ui)
         {
-            // Prepare OpenGL state for UI rendering
             renderer->PrepareForUIRendering();
-            
-            // Render UI
             ui->Render();
-            
-            // Restore OpenGL state for next frame
             renderer->RestoreAfterUIRendering();
         }
             

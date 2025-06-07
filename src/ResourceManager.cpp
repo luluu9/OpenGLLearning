@@ -7,7 +7,6 @@
 #include <regex>
 #include <functional>
 
-// Initialize the static instance
 ResourceManager* ResourceManager::instance = nullptr;
 
 ResourceManager* ResourceManager::GetInstance()
@@ -25,7 +24,6 @@ ResourceManager::~ResourceManager()
     ReleaseAllModels();
 }
 
-// Shader management functions
 Shader* ResourceManager::GetShader(const std::string& name)
 {
     auto it = shaders.find(name);
@@ -39,11 +37,9 @@ Shader* ResourceManager::GetShader(const std::string& name)
 
 Shader* ResourceManager::LoadShaderFromFile(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath)
 {
-    // Check if the shader already exists
     auto existingShader = GetShader(name);
     if (existingShader)
     {
-        // Reload the shader
         if (existingShader->LoadFromFile(vertexPath, fragmentPath))
         {
             return existingShader;
@@ -54,7 +50,7 @@ Shader* ResourceManager::LoadShaderFromFile(const std::string& name, const std::
             return nullptr;
         }
     }
-      // Create a new shader
+
     auto shader = std::make_unique<Shader>();
     shader->SetName(name);
     if (shader->LoadFromFile(vertexPath, fragmentPath))
@@ -72,11 +68,9 @@ Shader* ResourceManager::LoadShaderFromFile(const std::string& name, const std::
 
 Shader* ResourceManager::LoadShaderFromSource(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource)
 {
-    // Check if the shader already exists
     auto existingShader = GetShader(name);
     if (existingShader)
     {
-        // Reload the shader
         if (existingShader->LoadFromSource(vertexSource, fragmentSource))
         {
             return existingShader;
@@ -87,7 +81,7 @@ Shader* ResourceManager::LoadShaderFromSource(const std::string& name, const std
             return nullptr;
         }
     }
-      // Create a new shader
+
     auto shader = std::make_unique<Shader>();
     shader->SetName(name);
     if (shader->LoadFromSource(vertexSource, fragmentSource))
@@ -129,7 +123,6 @@ Model* ResourceManager::LoadModel(const std::string& name, const std::string& fi
     auto existingModel = GetModel(name);
     if (existingModel)
     {
-        // Reload the model
         if (existingModel->LoadFromFile(filepath))
         {
             return existingModel;
@@ -141,7 +134,6 @@ Model* ResourceManager::LoadModel(const std::string& name, const std::string& fi
         }
     }
     
-    // Create a new model
     auto model = std::make_unique<Model>();
     if (model->LoadFromFile(filepath))
     {
@@ -166,7 +158,6 @@ void ResourceManager::ReleaseAllModels()
     models.clear();
 }
 
-// Shader Library Functions
 bool ResourceManager::LoadAllShadersFromDirectory(const std::string& directory)
 {
     namespace fs = std::filesystem;
@@ -200,17 +191,16 @@ bool ResourceManager::LoadAllShadersFromDirectory(const std::string& directory)
                 std::string filePath = path.string();
                 std::string extension = path.extension().string();
                 std::string baseName = path.stem().string();
-                  // Determine shader category based on parent directory relative to base shader directory
+
+                // Determine shader category based on parent directory relative to base shader directory
                 std::string category = "Default";
                 fs::path parentDir = path.parent_path();
                 fs::path relativePath = fs::relative(parentDir, fs::path(directory));
                 
                 if (!relativePath.empty() && relativePath.string() != ".")
                 {
-                    // Use the first subdirectory as the category
                     category = relativePath.begin()->string();
                 }
-                  // Check if this is a vertex or fragment shader
                 if (extension == ".vert")
                 {
                     // Use full path for uniqueness but category+basename for display
@@ -230,7 +220,6 @@ bool ResourceManager::LoadAllShadersFromDirectory(const std::string& directory)
                     }
                     
                     // Store shader metadata
-                    
                     shaderInfos[fullName].name = baseName;
                     shaderInfos[fullName].vertexPath = filePath;
                     shaderInfos[fullName].category = category;
@@ -274,7 +263,8 @@ bool ResourceManager::LoadAllShadersFromDirectory(const std::string& directory)
                     shaderInfos[fullName].name = baseName;
                     shaderInfos[fullName].fragmentPath = filePath;
                     shaderInfos[fullName].category = category;
-                      // Try to extract description if we haven't found one yet
+                    
+                    // Try to extract description if we haven't found one yet
                     if (shaderInfos[fullName].description.empty())
                     {
                         std::ifstream file(filePath);

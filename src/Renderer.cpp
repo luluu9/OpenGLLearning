@@ -36,6 +36,8 @@ void Renderer::Shutdown()
 
 void Renderer::BeginFrame()
 {
+    currentTime = static_cast<float>(glfwGetTime());
+    
     glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -65,24 +67,24 @@ void Renderer::Render(Scene* scene, Camera* camera)
         return;
     
     if (renderMode == RenderMode::Deferred) {
-        Shader* gBufferShader = ResourceManager::GetInstance()->GetShader("Laboratory_IV/gbuffer");
-        Shader* lightingShader = ResourceManager::GetInstance()->GetShader("Laboratory_IV/deferred_lighting");
+        Shader* gBufferShader = ResourceManager::GetInstance()->GetShader("deferred/gbuffer");
+        Shader* lightingShader = ResourceManager::GetInstance()->GetShader("deferred/deferred_lighting");
         
         if (!gBufferShader) {
             std::cerr << "Loading gbuffer shader..." << std::endl;
             gBufferShader = ResourceManager::GetInstance()->LoadShaderFromFile(
-                "Laboratory_IV/gbuffer", 
-                "resources/shaders/Laboratory_IV/gbuffer.vert", 
-                "resources/shaders/Laboratory_IV/gbuffer.frag"
+                "deferred/gbuffer", 
+                "resources/shaders/deferred/gbuffer.vert", 
+                "resources/shaders/deferred/gbuffer.frag"
             );
         }
 
         if (!lightingShader) {
             std::cerr << "Loading deferred_lighting shader..." << std::endl;
             lightingShader = ResourceManager::GetInstance()->LoadShaderFromFile(
-                "Laboratory_IV/deferred_lighting", 
-                "resources/shaders/Laboratory_IV/deferred_lighting.vert", 
-                "resources/shaders/Laboratory_IV/deferred_lighting.frag"
+                "deferred/deferred_lighting", 
+                "resources/shaders/deferred/deferred_lighting.vert", 
+                "resources/shaders/deferred/deferred_lighting.frag"
             );
         }
             
@@ -131,8 +133,7 @@ void Renderer::Render(Scene* scene, Camera* camera)
         shader->SetInt("lightingModel", static_cast<int>(lightingModel));
 
         const auto& lights = scene->GetLights();
-        int numLights = static_cast<int>(lights.size());
-        shader->SetInt("numLights", numLights);
+        int numLights = static_cast<int>(lights.size());        shader->SetInt("numLights", numLights);
         
         // Pass each light to the shader
         for (int i = 0; i < numLights; i++) {
@@ -143,6 +144,9 @@ void Renderer::Render(Scene* scene, Camera* camera)
             shader->SetVec3(prefix + "color", light.color);
             shader->SetFloat(prefix + "intensity", light.intensity);
         }
+        
+        // Set time uniform for all shaders for animations
+        shader->SetFloat("time", currentTime);
         
         shader->SetVec3("viewPos", camera->GetPosition());
 
@@ -157,7 +161,7 @@ void Renderer::Render(Scene* scene, Camera* camera)
         shader->SetMat4("projection", projectionMatrix);
         
         object->Draw();
-        object->DrawHighlight(camera);
+        object->DrawHighlight(camera, currentTime);
     }
 }
 
@@ -350,11 +354,13 @@ void Renderer::RenderWithTessellation(Scene* scene, Camera* camera)
     while((err = glGetError()) != GL_NO_ERROR) {
         std::cerr << "OpenGL error before setting uniforms: " << std::hex << err << std::dec << std::endl;
     }
-    
-    try {
+      try {
         tessellationShader->SetFloat("tessLevelOuter", tessellationLevelOuter);
         tessellationShader->SetFloat("tessLevelInner", tessellationLevelInner);
         tessellationShader->SetFloat("displaceAmount", displacementAmount);
+        
+        // Set time uniform for animations
+        tessellationShader->SetFloat("time", currentTime);
     } catch (const std::exception& e) {
         std::cerr << "Error setting tessellation parameters: " << e.what() << std::endl;
     }
@@ -413,7 +419,7 @@ void Renderer::RenderWithTessellation(Scene* scene, Camera* camera)
         Shader* highlightShader = ResourceManager::GetInstance()->GetShader("highlight");
         if (highlightShader)
         {
-            object->DrawHighlight(camera);
+            object->DrawHighlight(camera, currentTime);
         }
     }
     
@@ -451,12 +457,14 @@ void Renderer::RenderDeferred(Scene* scene, Camera* camera)
     glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    Shader* gBufferShader = ResourceManager::GetInstance()->GetShader("Laboratory_IV/gbuffer");
+    Shader* gBufferShader = ResourceManager::GetInstance()->GetShader("deferred/gbuffer");
     if (!gBufferShader) {
         std::cerr << "Error: G-buffer shader not found!" << std::endl;
         return;
-    }
-    gBufferShader->Use();
+    }    gBufferShader->Use();
+    
+    // Set time uniform for animations
+    gBufferShader->SetFloat("time", currentTime);
     
     // Render each object in the scene - only geometry
     for (auto& object : scene->GetObjects())
@@ -482,7 +490,7 @@ void Renderer::RenderDeferred(Scene* scene, Camera* camera)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     // Get the deferred lighting shader
-    Shader* lightingShader = ResourceManager::GetInstance()->GetShader("Laboratory_IV/deferred_lighting");
+    Shader* lightingShader = ResourceManager::GetInstance()->GetShader("deferred/deferred_lighting");
     if (!lightingShader) {
         std::cerr << "Error: Deferred lighting shader not found!" << std::endl;
         return;
@@ -514,8 +522,9 @@ void Renderer::RenderDeferred(Scene* scene, Camera* camera)
         lightingShader->SetVec3(prefix + "position", light.position);
         lightingShader->SetVec3(prefix + "color", light.color);
         lightingShader->SetFloat(prefix + "intensity", light.intensity);
-    }
+    }    
     lightingShader->SetVec3("viewPos", camera->GetPosition());
+    lightingShader->SetFloat("time", currentTime);
     
     // Draw full-screen quad
     glBindVertexArray(quadVAO);
@@ -537,7 +546,7 @@ void Renderer::RenderDeferred(Scene* scene, Camera* camera)
             highlightShader->SetMat4("view", viewMatrix);
             highlightShader->SetMat4("projection", projectionMatrix);
             
-            object->DrawHighlight(camera);
+            object->DrawHighlight(camera, currentTime);
         }
     }
 }

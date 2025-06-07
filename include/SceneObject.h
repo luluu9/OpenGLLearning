@@ -25,7 +25,7 @@ public:
     virtual void Update(float deltaTime);
     virtual void Draw(Mesh::RenderMode mode = Mesh::RenderMode::TRIANGLES);
     
-    virtual void DrawHighlight(Camera* camera);
+    virtual void DrawHighlight(Camera* camera, float currentTime);
     
     // Transform functions
     void SetPosition(const glm::vec3& position);

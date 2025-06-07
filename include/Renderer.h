@@ -33,6 +33,9 @@ public:
     void Render(Scene* scene, Camera* camera);
     void EndFrame();
     
+    // Returns the current animation time
+    float GetTime() const { return currentTime; }
+    
     void PrepareForUIRendering();
     void RestoreAfterUIRendering();
     
@@ -71,6 +74,7 @@ private:
     LightingModel lightingModel = LightingModel::Phong;
     glm::vec4 clearColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
     bool depthTestEnabled = true;
+    float currentTime = 0.0f;
     
     // Tessellation control parameters
     float tessellationLevelOuter = 4.0f;

@@ -32,15 +32,10 @@ void SceneObject::Draw(Mesh::RenderMode mode)
     }
 }
 
-void SceneObject::DrawHighlight(Camera* camera)
+void SceneObject::DrawHighlight(Camera* camera, float currentTime)
 {
     if (!visible || !highlighted)
         return;
-    
-    static float highlightPulse = 0.0f;
-    highlightPulse += 0.05f; // Update pulse value for animation
-    if (highlightPulse > 6.28f)
-        highlightPulse = 0.0f;
     
     Shader* highlightShader = ResourceManager::GetInstance()->GetShader("highlight");
     if (!highlightShader)
@@ -52,13 +47,11 @@ void SceneObject::DrawHighlight(Camera* camera)
     
     // Use the highlight shader
     highlightShader->Use();
-    
-    // Set highlight color and pulse
-    highlightShader->SetVec4("highlightColor", glm::vec4(1.0f, 0.6f, 0.0f, 0.3f)); 
-    highlightShader->SetFloat("highlightPulse", highlightPulse);
+    highlightShader->SetVec4("highlightColor", glm::vec4(1.0f, 0.6f, 0.0f, 0.3f));
     highlightShader->SetMat4("model", transform);
     highlightShader->SetMat4("view", camera->GetViewMatrix());
     highlightShader->SetMat4("projection", camera->GetProjectionMatrix());
+    highlightShader->SetFloat("time", currentTime);
     
     if (mesh)
     {

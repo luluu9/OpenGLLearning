@@ -25,9 +25,17 @@ uniform struct Material {
     float shininess;
 } material;
 
+#define MAX_LIGHTS 10
+struct Light {
+    vec3 position;
+    vec3 color;
+    float intensity;
+};
+
 // Light properties
-uniform vec3 lightAmbient;
-uniform vec3 lightDiffuse;
+uniform Light lights[MAX_LIGHTS];
+uniform int numLights;
+uniform float time; // Global time for animations
 
 void main()
 {
@@ -46,20 +54,29 @@ void main()
     
     // Transform normal to eye space and normalize
     vec3 eyeNormal = normalize(mat3(transpose(inverse(viewModel))) * aNormal);
-    
-    // Transform light position to eye space
-    vec3 eyeLightPos = vec3(view * vec4(lightPos, 1.0));
-    
-    // Calculate light vector in eye space
-    vec3 lightVector = normalize(eyeLightPos - eyePositionVec3);
-    
-    // Calculate Lambert diffuse term
-    float diffuseFactor = max(dot(eyeNormal, lightVector), 0.0);
-    
-    // Calculate final color using ambient and diffuse components
+      // Initialize lighting components
     float ambientStrength = 0.1;
     vec3 ambientColor = ambientStrength * material.ambient;
-    vec3 diffuseColor = diffuseFactor * material.diffuse;
+    vec3 diffuseColor = vec3(0.0);
+    
+    // Process all lights
+    for (int i = 0; i < numLights && i < MAX_LIGHTS; i++) {
+        // Transform light position to eye space
+        vec3 eyeLightPos = vec3(view * vec4(lights[i].position, 1.0));
+        
+        // Calculate light vector in eye space
+        vec3 lightVector = normalize(eyeLightPos - eyePositionVec3);
+        
+        // Calculate Lambert diffuse term
+        float diffuseFactor = max(dot(eyeNormal, lightVector), 0.0);
+        
+        // Calculate distance attenuation
+        float distance = length(eyeLightPos - eyePositionVec3);
+        float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * distance * distance);
+        
+        // Add diffuse contribution from this light
+        diffuseColor += diffuseFactor * material.diffuse * lights[i].color * lights[i].intensity * attenuation;
+    }
     
     // Set output color
     vColor = vec4(ambientColor + diffuseColor, 1.0);

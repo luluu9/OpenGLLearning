@@ -17,8 +17,17 @@ out vec2 TexCoords;         // Texture coordinates
 uniform mat4 model;         // Model matrix
 uniform mat4 view;          // View matrix
 uniform mat4 projection;    // Projection matrix
-uniform vec3 lightPos;      // Light position in world space
 uniform vec3 viewPos;       // View/camera position in world space
+uniform float time;        // Global time for animations
+
+#define MAX_LIGHTS 10
+struct Light {
+    vec3 position;
+    vec3 color;
+    float intensity;
+};
+uniform Light lights[MAX_LIGHTS];
+uniform int numLights;
 
 void main()
 {
@@ -27,9 +36,9 @@ void main()
     
     // Transform normal to world space (excluding non-uniform scaling)
     Normal = mat3(transpose(inverse(model))) * aNormal;
-    
-    // Calculate light direction vector in world space (will normalize in fragment shader)
-    LightDir = lightPos - FragPos;
+      // We will handle multiple lights in the fragment shader
+    // Just initialize LightDir with the direction to the first light if available
+    LightDir = (numLights > 0) ? lights[0].position - FragPos : vec3(0.0, 1.0, 0.0);
     
     // Calculate view direction vector in world space (will normalize in fragment shader)
     ViewDir = viewPos - FragPos;

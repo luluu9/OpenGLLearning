@@ -7,8 +7,16 @@ in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoords;
 
-uniform vec3 lightPos;
-uniform vec3 viewPos;
+#define MAX_LIGHTS 10
+struct Light {
+    vec3 position;
+    vec3 color;
+    float intensity;
+};
+
+uniform Light lights[MAX_LIGHTS];
+uniform int numLights;
+uniform float time;
 
 // Material properties
 struct Material {
@@ -19,12 +27,12 @@ struct Material {
 };
 uniform Material material;
 
-// Light properties
-uniform vec3 lightColor;
-uniform float lightIntensity;
-
 void main()
-{    vec3 ambient = material.ambient;
-    
-    FragColor = vec4(ambient * lightColor * lightIntensity, 1.0);
+{
+    vec3 ambient = material.ambient;
+    vec3 color = vec3(0.0);
+    for (int i = 0; i < numLights && i < MAX_LIGHTS; i++) {
+        color += ambient * lights[i].color * lights[i].intensity;
+    }
+    FragColor = vec4(color, 1.0);
 }

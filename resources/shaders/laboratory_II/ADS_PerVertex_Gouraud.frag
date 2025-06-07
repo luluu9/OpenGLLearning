@@ -8,12 +8,8 @@ in vec2 TexCoords;
 // Output
 out vec4 FragColor;
 
-// Light properties
-uniform vec3 lightColor;
-uniform float lightIntensity;
-
 void main()
 {
-    // Simply pass through the interpolated vertex color, adjusted by light color/intensity
-    FragColor = vColor * vec4(lightColor * lightIntensity, 1.0);
+    // Simply pass through the interpolated vertex color (lighting already calculated in vertex shader)
+    FragColor = vColor;
 }

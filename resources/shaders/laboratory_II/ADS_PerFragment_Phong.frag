@@ -19,47 +19,62 @@ uniform struct Material {
     float shininess;
 } material;
 
-// Light properties
-uniform vec3 lightColor;
-uniform float lightIntensity;
+#define MAX_LIGHTS 10
+struct Light {
+    vec3 position;
+    vec3 color;
+    float intensity;
+};
 
 // Light properties
-uniform vec3 lightAmbient;
-uniform vec3 lightDiffuse;
-uniform vec3 lightSpecular;
+uniform Light lights[MAX_LIGHTS];
+uniform int numLights;
+uniform float time; // Global time for animations
 
 void main()
 {
     // Normalize the interpolated vectors (they lose normalization during interpolation)
     vec3 normal = normalize(Normal);
-    vec3 lightDir = normalize(LightDir);
     vec3 viewDir = normalize(ViewDir);
     
     // Calculate ambient component
     float ambientStrength = 0.1;
     vec3 ambientColor = ambientStrength * material.ambient;
     
-    // Calculate diffuse intensity
-    float diffuseFactor = max(dot(normal, lightDir), 0.0);
+    // Initialize diffuse and specular components
+    vec3 diffuseColor = vec3(0.0);
+    vec3 specularColor = vec3(0.0);
     
-    // Calculate diffuse component
-    vec3 diffuseColor = diffuseFactor * material.diffuse;
-    
-    // Initialize result with ambient and diffuse components
-    vec3 result = ambientColor + diffuseColor;
-    
-    // Only calculate specular component if diffuse factor is greater than zero
-    if (diffuseFactor > 0.0) {
-        // Calculate reflection vector
-        vec3 reflectionVector = reflect(-lightDir, normal);
+    // Process all lights
+    for (int i = 0; i < numLights && i < MAX_LIGHTS; i++) {
+        // Calculate light direction for this light
+        vec3 lightDir = normalize(lights[i].position - FragPos);
         
-        // Calculate specular factor
-        float specularFactor = pow(max(dot(viewDir, reflectionVector), 0.0), material.shininess);
+        // Calculate diffuse intensity
+        float diffuseFactor = max(dot(normal, lightDir), 0.0);
         
-        // Add specular component to result
-        result += specularFactor * material.specular;
+        // Calculate distance attenuation
+        float distance = length(lights[i].position - FragPos);
+        float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * distance * distance);
+        
+        // Add diffuse contribution from this light
+        diffuseColor += diffuseFactor * material.diffuse * lights[i].color * lights[i].intensity * attenuation;
+        
+        // Only calculate specular component if diffuse factor is greater than zero
+        if (diffuseFactor > 0.0) {
+            // Calculate reflection vector
+            vec3 reflectionVector = reflect(-lightDir, normal);
+            
+            // Calculate specular factor
+            float specularFactor = pow(max(dot(viewDir, reflectionVector), 0.0), material.shininess);
+            
+            // Add specular contribution from this light
+            specularColor += specularFactor * material.specular * lights[i].color * lights[i].intensity * attenuation;
+        }
     }
+      // Combine all lighting components
+    vec3 result = ambientColor + diffuseColor + specularColor;
     
-    // Set fragment color with light color and intensity
-    FragColor = vec4(result * lightColor * lightIntensity, 1.0);
+    // Set fragment color (light color and intensity already applied in the lighting calculations)
+    FragColor = vec4(result, 1.0);
 }

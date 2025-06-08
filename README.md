@@ -102,6 +102,20 @@ cd Release
 .\OpenGLLearning.exe
 ```
 
+## Running clang-tidy
+To use clang-tidy, you have to generate compilation database. At the time of writing it is possible only with Makefile and Ninja generator (CMAKE_EXPORT_COMPILE_COMMANDS=1), so use build-ninja preset:
+```bash
+cmake --preset=build-ninja
+```
+Then, run clang-tidy, providing compilation database, e.g:
+```bash
+clang-tidy -checks="*" -warnings-as-errors=* -p .\build-ninja\ .\src\Application.cpp
+```
+You can also use provided Powershell script to run linter on all project files:
+```bash
+.\scripts\Run-ClangTidy.ps1
+```
+
 ## Usage
 
 ### Camera Navigation

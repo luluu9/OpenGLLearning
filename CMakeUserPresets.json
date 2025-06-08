@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "configurePresets": [
+    {
+      "name": "default",
+      "inherits": "vs2022",
+      "environment": {
+        "VCPKG_ROOT": "D:/STUDIA/MSI/PROJEKT/Implementacja/vcpkg/scripts/buildsystems/vcpkg.cmake"
+      }
+    }
+  ]
+}

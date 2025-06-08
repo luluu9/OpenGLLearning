@@ -70,7 +70,7 @@ cd vcpkg
 ### 2. Clone the Repository
 
 ```powershell
-git clone https://github.com/yourusername/OpenGLLearning.git
+git clone https://github.com/luluu9/OpenGLLearning.git
 cd OpenGLLearning
 ```
 
@@ -81,6 +81,16 @@ mkdir build
 cd build
 cmake .. -DCMAKE_TOOLCHAIN_FILE=[path-to-vcpkg]/scripts/buildsystems/vcpkg.cmake
 cmake --build . --config Release
+```
+or with presets:
+Set your path to vcpkg in `CMakeUserPresets.json`
+```json
+"environment": {
+    "VCPKG_ROOT": "[path-to-vcpkg]"
+}
+```bash
+cmake --preset=default build
+cmake --build build
 ```
 
 Replace `[path-to-vcpkg]` with the actual path to your vcpkg installation.

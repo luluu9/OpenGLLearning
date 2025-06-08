@@ -814,7 +814,7 @@ void UI::RenderSceneSettings()
     {
         const std::vector<Light>& lights = scene->GetLights();
         
-        for (int i = 0; i < lights.size(); i++)
+        for (std::size_t i = 0; i < lights.size(); i++)
         {
             ImGui::PushID(i);
             

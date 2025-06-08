@@ -347,9 +347,6 @@ void Renderer::RenderWithTessellation(Scene* scene, Camera* camera)
     }
     tessellationShader->Use();
     
-    glm::mat4 viewMatrix = camera->GetViewMatrix();
-    glm::mat4 projectionMatrix = camera->GetProjectionMatrix();
-    
     GLenum err;
     while((err = glGetError()) != GL_NO_ERROR) {
         std::cerr << "OpenGL error before setting uniforms: " << std::hex << err << std::dec << std::endl;
@@ -381,7 +378,6 @@ void Renderer::RenderWithTessellation(Scene* scene, Camera* camera)
     while((err = glGetError()) != GL_NO_ERROR) {
         std::cerr << "OpenGL error after setting uniforms: " << std::hex << err << std::dec << std::endl;
     }
-    glm::mat4 identityMatrix(1.0f);
     tessellationShader->SetMat4("view", camera->GetViewMatrix());
     tessellationShader->SetMat4("projection", camera->GetProjectionMatrix());
     

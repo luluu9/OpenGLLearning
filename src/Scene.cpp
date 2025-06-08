@@ -75,13 +75,13 @@ int Scene::AddLight(const Light& light)
     return static_cast<int>(lights.size() - 1);
 }
 
-void Scene::RemoveLight(int index)
+void Scene::RemoveLight(std::size_t index)
 {
     if (index >= 0 && index < lights.size())
         lights.erase(lights.begin() + index);
 }
 
-Light* Scene::GetLight(int index)
+Light* Scene::GetLight(std::size_t index)
 {
     if (index >= 0 && index < lights.size())
         return &lights[index];

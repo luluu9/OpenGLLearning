@@ -33,8 +33,8 @@ public:
     void ClearLights();
     int AddDefaultLight();
     int AddLight(const Light& light);
-    void RemoveLight(int index);
-    Light* GetLight(int index);
+    void RemoveLight(std::size_t index);
+    Light* GetLight(std::size_t index);
     
     // Scene serialization
     bool SaveToFile(const std::string& filepath);

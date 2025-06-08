@@ -15,6 +15,8 @@ SceneObject::~SceneObject() = default;
 
 void SceneObject::Update(float deltaTime)
 {
+    // Suppress unused parameter warning
+    (void)deltaTime;
 }
 
 void SceneObject::Draw(Mesh::RenderMode mode)

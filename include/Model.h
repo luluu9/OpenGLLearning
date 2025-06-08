@@ -36,5 +36,5 @@ private:
     bool isLoaded = false;
     
     void ProcessNode(aiNode* node, const aiScene* scene);
-    std::unique_ptr<Mesh> ProcessMesh(aiMesh* mesh, const aiScene* scene);
+    std::unique_ptr<Mesh> ProcessMesh(aiMesh* mesh);
 };

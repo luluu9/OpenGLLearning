@@ -68,7 +68,7 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene)
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
     {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        meshes.push_back(ProcessMesh(mesh, scene));
+        meshes.push_back(ProcessMesh(mesh));
     }
     
     // Then process all child nodes recursively
@@ -78,8 +78,9 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene)
     }
 }
 
-std::unique_ptr<Mesh> Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
+std::unique_ptr<Mesh> Model::ProcessMesh(aiMesh* mesh)
 {
+
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)

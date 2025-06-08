@@ -254,82 +254,82 @@ bool Shader::CompileShaderWithTessellation(const std::string& vertexSource, cons
     return true;
 }
 
-int Shader::GetUniformLocation(const std::string& name) const
+int Shader::GetUniformLocation(const std::string& uniformName) const
 {
     // Check if the uniform location is already in the cache
-    if (uniformLocationCache.find(name) != uniformLocationCache.end())
-        return uniformLocationCache[name];
+    if (uniformLocationCache.find(uniformName) != uniformLocationCache.end())
+        return uniformLocationCache[uniformName];
         
-    int location = glGetUniformLocation(id, name.c_str());
+    int location = glGetUniformLocation(id, uniformName.c_str());
     if (location == -1) {
-        if (name != "lightPos" && name != "lightColor" && name != "lightIntensity") {
-            std::cerr << "Warning: Uniform '" << name << "' not found in shader " << this->name << std::endl;
+        if (uniformName != "lightPos" && uniformName != "lightColor" && uniformName != "lightIntensity") {
+            std::cerr << "Warning: Uniform '" << uniformName << "' not found in shader " << this->name << std::endl;
         }
     }
     
-    uniformLocationCache[name] = location;
+    uniformLocationCache[uniformName] = location;
     return location;
 }
 
-void Shader::SetBool(const std::string& name, bool value) const
+void Shader::SetBool(const std::string& uniformName, bool value) const
 {
-    int location = GetUniformLocation(name);
+    int location = GetUniformLocation(uniformName);
     if (location != -1)
         glUniform1i(location, static_cast<int>(value));
 }
 
-void Shader::SetInt(const std::string& name, int value) const
+void Shader::SetInt(const std::string& uniformName, int value) const
 {
-    int location = GetUniformLocation(name);
+    int location = GetUniformLocation(uniformName);
     if (location != -1)
         glUniform1i(location, value);
 }
 
-void Shader::SetFloat(const std::string& name, float value) const
+void Shader::SetFloat(const std::string& uniformName, float value) const
 {
-    int location = GetUniformLocation(name);
+    int location = GetUniformLocation(uniformName);
     if (location != -1)
         glUniform1f(location, value);
 }
 
-void Shader::SetVec2(const std::string& name, const glm::vec2& value) const
+void Shader::SetVec2(const std::string& uniformName, const glm::vec2& value) const
 {
-    int location = GetUniformLocation(name);
+    int location = GetUniformLocation(uniformName);
     if (location != -1)
         glUniform2fv(location, 1, glm::value_ptr(value));
 }
 
-void Shader::SetVec3(const std::string& name, const glm::vec3& value) const
+void Shader::SetVec3(const std::string& uniformName, const glm::vec3& value) const
 {
-    int location = GetUniformLocation(name);
+    int location = GetUniformLocation(uniformName);
     if (location != -1)
         glUniform3fv(location, 1, glm::value_ptr(value));
 }
 
-void Shader::SetVec4(const std::string& name, const glm::vec4& value) const
+void Shader::SetVec4(const std::string& uniformName, const glm::vec4& value) const
 {
-    int location = GetUniformLocation(name);
+    int location = GetUniformLocation(uniformName);
     if (location != -1)
         glUniform4fv(location, 1, glm::value_ptr(value));
 }
 
-void Shader::SetMat2(const std::string& name, const glm::mat2& value) const
+void Shader::SetMat2(const std::string& uniformName, const glm::mat2& value) const
 {
-    int location = GetUniformLocation(name);
+    int location = GetUniformLocation(uniformName);
     if (location != -1)
         glUniformMatrix2fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }
 
-void Shader::SetMat3(const std::string& name, const glm::mat3& value) const
+void Shader::SetMat3(const std::string& uniformName, const glm::mat3& value) const
 {
-    int location = GetUniformLocation(name);
+    int location = GetUniformLocation(uniformName);
     if (location != -1)
         glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }
 
-void Shader::SetMat4(const std::string& name, const glm::mat4& value) const
+void Shader::SetMat4(const std::string& uniformName, const glm::mat4& value) const
 {
-    int location = GetUniformLocation(name);
+    int location = GetUniformLocation(uniformName);
     if (location != -1)
         glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }

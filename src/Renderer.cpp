@@ -389,8 +389,6 @@ void Renderer::RenderWithTessellation(Scene* scene, Camera* camera)
         std::cerr << "OpenGL error before simple rendering: " << std::hex << err << std::dec << std::endl;
     }
     
-    Shader* highlightShader = ResourceManager::GetInstance()->GetShader("highlight");
-    int objectCount = 0;
     for (auto& object : scene->GetObjects())
     {
         if (!object->IsVisible())
@@ -411,12 +409,12 @@ void Renderer::RenderWithTessellation(Scene* scene, Camera* camera)
     }
         
     // Render highlighted objects (using normal highlighting)
+    Shader* highlightShader = ResourceManager::GetInstance()->GetShader("highlight");
     for (auto& object : scene->GetObjects())
     {
         if (!object->IsVisible() || !object->IsHighlighted())
             continue;
             
-        Shader* highlightShader = ResourceManager::GetInstance()->GetShader("highlight");
         if (highlightShader)
         {
             object->DrawHighlight(camera, currentTime);

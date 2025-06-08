@@ -65,7 +65,7 @@ bool Application::Initialize()
     resourceManager->LoadAllShadersFromDirectory("resources/shaders");
     ui->RefreshShaderLibrary();
 
-    glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height) {
+    glfwSetFramebufferSizeCallback(window, []([[maybe_unused]] GLFWwindow* window, int width, int height) {
         glViewport(0, 0, width, height);
         Application* app = Application::GetInstance();
         if (app && app->GetCamera()) {

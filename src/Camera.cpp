@@ -7,7 +7,7 @@ Camera::Camera(float fov, float aspectRatio, float nearPlane, float farPlane)
 {
     UpdateViewMatrix();
     UpdateProjectionMatrix();
-    glfwSetScrollCallback(glfwGetCurrentContext(), [](GLFWwindow* window, double xoffset, double yoffset) {
+    glfwSetScrollCallback(glfwGetCurrentContext(), []([[maybe_unused]] GLFWwindow* window, [[maybe_unused]] double xoffset, double yoffset) {
         Camera* camera = static_cast<Camera*>(glfwGetWindowUserPointer(window));
         if (camera && !camera->GetIgnoreScrollInput())
             camera->ProcessMouseScroll(static_cast<float>(yoffset));
@@ -53,8 +53,8 @@ void Camera::ProcessInput(GLFWwindow* window, float deltaTime, bool ignoreKeyboa
     
     if (firstMouse)
     {
-        lastX = xpos;
-        lastY = ypos;
+        lastX = static_cast<float>(xpos);
+        lastY = static_cast<float>(ypos);
         firstMouse = false;
     }
     
@@ -67,8 +67,8 @@ void Camera::ProcessInput(GLFWwindow* window, float deltaTime, bool ignoreKeyboa
         ProcessMouseMovement(xoffset, yoffset);
     }
     
-    lastX = xpos;
-    lastY = ypos;
+    lastX = static_cast<float>(xpos);
+    lastY = static_cast<float>(ypos);
     
     // Update the view matrix after processing all inputs
     UpdateViewMatrix();

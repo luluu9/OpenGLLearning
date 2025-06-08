@@ -569,10 +569,7 @@ void UI::RenderShaderEditor()
                         compilationMessage = "Applied shader: " + shaderName;
                         compilationSuccessful = true;
                         
-                        // Load the shader source into the editor
-                        ResourceManager* resourceManager = ResourceManager::GetInstance();
                         const auto& shaderInfo = resourceManager->GetShaderInfo(shaderName);
-                        
                         if (!shaderInfo.vertexPath.empty() && !shaderInfo.fragmentPath.empty())
                         {
                             // Load vertex shader source
@@ -699,7 +696,7 @@ void UI::RenderObjectProperties()
         std::string objectName = selectedObject->GetName();
         static char nameBuffer[256] = "";
         if (objectName.size() < sizeof(nameBuffer)) {
-            strcpy(nameBuffer, objectName.c_str());
+            strcpy_s(nameBuffer, 256, objectName.c_str());
         }
         if (ImGui::InputText("Name", nameBuffer, sizeof(nameBuffer)))
         {
@@ -888,7 +885,6 @@ void UI::RenderPerformanceOverlay()
 {
     const float DISTANCE = 10.0f;
     static int corner = 0;
-    ImGuiIO& io = ImGui::GetIO();
     
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration |
                                   ImGuiWindowFlags_AlwaysAutoResize |
@@ -921,7 +917,7 @@ void UI::RenderPerformanceOverlay()
         
         ImGui::Text("Frame Time Graph");
         char overlay[32];
-        sprintf(overlay, "%.3f ms", averageFrameTime * 1000.0f);
+        sprintf_s(overlay, 32, "%.3f ms", averageFrameTime * 1000.0f);
         ImGui::PlotLines("##FrameTimes", frameTimes, IM_ARRAYSIZE(frameTimes), frameTimeIndex, 
                        overlay, 0.0f, 0.040f, ImVec2(0, 80));
         

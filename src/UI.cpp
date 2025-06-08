@@ -816,7 +816,7 @@ void UI::RenderSceneSettings()
         
         for (std::size_t i = 0; i < lights.size(); i++)
         {
-            ImGui::PushID(i);
+            ImGui::PushID(static_cast<int>(i));
             
             std::string lightLabel = "Light " + std::to_string(i + 1);
             if (ImGui::TreeNode(lightLabel.c_str()))

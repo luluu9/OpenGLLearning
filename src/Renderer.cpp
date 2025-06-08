@@ -463,9 +463,6 @@ void Renderer::RenderDeferred(Scene* scene, Camera* camera)
         return;
     }    gBufferShader->Use();
     
-    // Set time uniform for animations
-    gBufferShader->SetFloat("time", currentTime);
-    
     // Render each object in the scene - only geometry
     for (auto& object : scene->GetObjects())
     {
@@ -489,7 +486,6 @@ void Renderer::RenderDeferred(Scene* scene, Camera* camera)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    // Get the deferred lighting shader
     Shader* lightingShader = ResourceManager::GetInstance()->GetShader("deferred/deferred_lighting");
     if (!lightingShader) {
         std::cerr << "Error: Deferred lighting shader not found!" << std::endl;

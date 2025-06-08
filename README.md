@@ -88,6 +88,7 @@ Set your path to vcpkg in `CMakeUserPresets.json`
 "environment": {
     "VCPKG_ROOT": "[path-to-vcpkg]"
 }
+```
 ```bash
 cmake --preset=default build
 cmake --build build

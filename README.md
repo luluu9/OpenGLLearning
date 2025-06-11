@@ -173,6 +173,32 @@ Two-pass rendering technique for improved lighting performance:
 
 ## Troubleshooting
 
+### Build issues
+- Error message like this when executing `cmake`:
+  ```bash
+  CMake Error at CMakeLists.txt:2 (project):
+    Running
+    'nmake' '-?'
+    failed with:
+    no such file or directory
+  ```
+  **Solution**: use Developer PowerShell for VS in the building process
+
+- Could not find a package:
+  ```bash
+  Could not find a configuration file for package "glfw3" that is compatible
+  with requested version "".
+  ```
+  **Solution**: Delete and reconfigure the build directory
+  ```bash
+  rm build/*
+  mkdir build
+  cd build
+  cmake .. -DCMAKE_TOOLCHAIN_FILE=[path_to_vcpkg.cmake]
+  cmake --build . --config Release
+  ```
+
+
 ### ImGui UI Not Displaying
 If the ImGui UI elements aren't visible despite successful initialization:
 1. Ensure you're using the official ImGui implementation files from the [ImGui repository](https://github.com/ocornut/imgui)

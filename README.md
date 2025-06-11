@@ -2,6 +2,8 @@
 
 An interactive educational desktop application for Windows that allows users to learn and experiment with modern 3D graphics rendering techniques using OpenGL. The application demonstrates key stages of the rendering pipeline: geometry processing, tessellation, shaders, lighting, and object transformations.
 
+![Basic 3D scene](resources/images/basic_scene.png)
+
 ## Features
 
 - **Interactive 3D Scene**: Add, remove, and manipulate 3D objects in real-time
@@ -35,6 +37,8 @@ An interactive educational desktop application for Windows that allows users to 
 | Tessellation              | ✅ Complete | Hardware tessellation for both meshes and models           |
 | Deferred Rendering        | ✅ Complete | G-buffer generation and lighting pass implementation       |
 | Object Highlighting       | ✅ Complete | Interactive object selection with visual feedback          |
+
+![Tessellation example](resources/images/tesellation.png)
 
 ## Prerequisites
 
@@ -164,6 +168,8 @@ Two-pass rendering technique for improved lighting performance:
   - **shaders/**: GLSL shader files
   - **scenes/**: Saved scene configurations
   - **models/**: 3D model files
+
+![Rose model example](resources/images/rose.png)
 
 ## Troubleshooting
 
